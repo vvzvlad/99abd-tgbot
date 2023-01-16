@@ -11,8 +11,6 @@ import operator
 
 
 db = SqliteDatabase('./database/99-abd.db')
-token="XXX"
-bot=telebot.TeleBot(token)
 
 time_delete = 60*10
 
@@ -37,6 +35,21 @@ class Abd(Model):
     group_id = CharField(column_name='group_id')
     class Meta:
         database = db
+
+#Abd.create_table()
+
+class Creds(Model):
+    creds_name = CharField(primary_key=True)
+    creds_value = CharField()
+    class Meta:
+        database = db
+
+#Creds.create_table()
+#Creds.create(creds_name='tg_bot_token', creds_value="ХХХ")
+token = Creds.select().where(Creds.creds_name == "tg_bot_token").dicts().execute()[0]["creds_value"]
+bot = telebot.TeleBot(token)
+
+
 
 
 def wait_and_delete(chat_id, message_id, wait_time=60*60):
@@ -176,7 +189,6 @@ def delete_bots_messages(message):
 
 
 bot.infinity_polling()
-
 
 
 

@@ -17,7 +17,7 @@ markovify_text_model = markovify.NewlineText(text, state_size=2)
 db = SqliteDatabase('./database/99-abd.db')
 
 time_delete = 60*10
-random = 100
+msg_random = 100
 
 def is_member(chat_id, user_id):
     try:
@@ -229,7 +229,7 @@ def counter_update(message):
     Abd.create(username=message.from_user.username, user_id=message.from_user.id, join_date=datetime.datetime.today(), last_message_date=datetime.datetime.today(), is_admin=False, messages_count=1, group_id=message.chat.id)
 
 def random_message(message):
-  rnd_count = random.randrange(0, random, 1)
+  rnd_count = random.randrange(0, msg_random, 1)
   if message.text[0] != "/" and rnd_count == 0:
     #messages = ["Бля, а доказать сможешь?", "Обоснуй", "Ой, кажется мне, ты пиздишь", "Нихуя себе", "Ты чо, ебнулся?", "Ты чо, ебанулся?", "В жопу себе это засунь", "Не обижайся, но ты долбоеб", "Мой герой!", "Тебе заняться нечем?", "Сексизм какой-то", "А в чем суть?", "Расскажи нормально, не понял нихуя", "О, это прекрасно"]
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':markovify_text_model.make_sentence()}).start()

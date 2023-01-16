@@ -10,7 +10,7 @@ import random
 import operator
 import markovify
 
-with open("./99_corpus.txt") as f:
+with open("./database/99_corpus.txt") as f:
     text = f.read()
 markovify_text_model = markovify.NewlineText(text, state_size=2)
 

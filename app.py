@@ -8,11 +8,16 @@ import time
 import datetime
 import random
 import operator
+import markovify
 
+with open("./99_corpus.txt") as f:
+    text = f.read()
+markovify_text_model = markovify.NewlineText(text, state_size=2)
 
 db = SqliteDatabase('./database/99-abd.db')
 
 time_delete = 60*10
+random = 100
 
 def is_member(chat_id, user_id):
     try:
@@ -131,6 +136,22 @@ def set_delete_delay_cmd(message):
     queued_message_for_delete(message)
     queued_message_for_delete(msg)
 
+@bot.message_handler(commands=['set_random'])
+def set_ramdom_cmd(message):
+  global time_delete
+  admins_table = Abd.select().where(Abd.is_admin == True).order_by(Abd.messages_count, Abd.last_message_date).dicts().execute()
+  admins_dict = [d['username'] for d in admins_table]
+  if message.from_user.username not in admins_dict:
+      msg = bot.reply_to(message, f"Ты не админ")
+      queued_message_for_delete(message)
+      queued_message_for_delete(msg)
+      return
+  else:
+    random = int(extract_arg(message.text)[0])
+    msg = bot.reply_to(message, f"Рандомные сообщений будут показываться каждый {random} сообщений")
+    queued_message_for_delete(message)
+    queued_message_for_delete(msg)
+
 @bot.message_handler(commands=["df", "df@ninety_nine_abominable_bot"])
 def cmd_day_faggot(message):
   date_string = datetime.datetime.today().strftime('%d/%m/%Y')
@@ -188,14 +209,16 @@ def cmd_99_rotation(message):
   user_for_delete = users[0]["username"]
   userid_for_delete = users[0]["user_id"]
 
-  bot.send_message(message.chat.id, f"@{user_for_delete} получил это письмо, потому что команда 👨‍🏫 биг дата 👩‍🏫 проанализровала его активности в телеграме и пометила его как невовлеченного 🙈 и малопродуктивного 🙉 шитпостера 🙊. Надя и ее команда заботы  орагнизовали партнерство с ведущими 🤑 шитпост-каналами и мы поможем (нет) найти ему хорошее место, где он будет читать еще больше, а постить еще меньше. Удаление 🚮 произойдет через 10 секунд ⏱. Повторная заявка на вступление будет рассмотрена в общем порядке. Еще раз спасибо за вклад (нет). Приятного дня (нет🤷). С уважением (нет🤷‍♂️), команда биг дата (нет 🤷‍♀️).")
+  bot.send_message(message.chat.id, f"@{user_for_delete} получил это письмо, потому что команда 👨‍🏫 биг дата 👩‍🏫 проанализровала его активности в телеграме и пометила его как невовлеченного 🙈 и малопродуктивного 🙉 шитпостера 🙊. Надя и ее команда заботы  орагнизовали партнерство с ведущими 🤑 шитпост-каналами и мы поможем (нет) найти ему хорошее место, где он будет читать еще больше, а постить еще меньше. Удаление 🚮 произойдет через 10 секунд ⏱. Повторная заявка на вступление будет рассмотрена в общем порядке. Еще раз спасибо за вклад (нет). Приятного дня (нет 🤷). С уважением (нет 🤷‍♂️), команда биг дата (нет 🤷‍♀️).")
 
   Thread(target=wait_and_exit_user,kwargs={'chat_id':message.chat.id, 'user_id':userid_for_delete, 'username':user_for_delete}).start()
 
   user_for_delete_dbnode = Abd.get(Abd.user_id == userid_for_delete)
   user_for_delete_dbnode.delete_instance()
 
-
+@bot.message_handler(commands=["random", "random@ninety_nine_abominable_bot"])
+def cmd_random(message):
+  Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':markovify_text_model.make_sentence()}).start()
 
 def counter_update(message):
   current_username = message.from_user.username
@@ -206,10 +229,10 @@ def counter_update(message):
     Abd.create(username=message.from_user.username, user_id=message.from_user.id, join_date=datetime.datetime.today(), last_message_date=datetime.datetime.today(), is_admin=False, messages_count=1, group_id=message.chat.id)
 
 def random_message(message):
-  rnd_count = random.randrange(0, 200, 1)
+  rnd_count = random.randrange(0, random, 1)
   if message.text[0] != "/" and rnd_count == 0:
-    messages = ["Бля, а доказать сможешь?", "Обоснуй", "Ой, кажется мне, ты пиздишь", "Нихуя себе", "Ты чо, ебнулся?", "Ты чо, ебанулся?", "В жопу себе это засунь", "Не обижайся, но ты долбоеб", "Мой герой!", "Тебе заняться нечем?", "Сексизм какой-то", "А в чем суть?", "Расскажи нормально, не понял нихуя", "О, это прекрасно"]
-    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':random.choice(messages)}).start()
+    #messages = ["Бля, а доказать сможешь?", "Обоснуй", "Ой, кажется мне, ты пиздишь", "Нихуя себе", "Ты чо, ебнулся?", "Ты чо, ебанулся?", "В жопу себе это засунь", "Не обижайся, но ты долбоеб", "Мой герой!", "Тебе заняться нечем?", "Сексизм какой-то", "А в чем суть?", "Расскажи нормально, не понял нихуя", "О, это прекрасно"]
+    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':markovify_text_model.make_sentence()}).start()
 
 def delete_bots_messages(message):
   if message.via_bot is not None:

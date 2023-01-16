@@ -99,12 +99,12 @@ def messages_deleter():
 
 
 
-def queued_message_for_delete(message):
+def queued_message_for_delete(message, time=time_delete):
   if message.via_bot is not None:
-    print(f"Queued: id {message.message_id}: '{message.text}' from {message.from_user.username} via bot {message.via_bot.username} in {time_delete}")
+    print(f"Queued: id {message.message_id}: '{message.text}' from {message.from_user.username} via bot {message.via_bot.username} in {time}")
   else:
-    print(f"Queued: id {message.message_id}: '{message.text}' from {message.from_user.username} in {time_delete}")
-  livetime = datetime.datetime.now() + datetime.timedelta(seconds=time_delete)
+    print(f"Queued: id {message.message_id}: '{message.text}' from {message.from_user.username} in {time}")
+  livetime = datetime.datetime.now() + datetime.timedelta(seconds=time)
   Query.create(message_id=message.message_id, chat_id=message.chat.id, abs_time_live=livetime)
 
 @bot.message_handler(commands=["dg", "dg@ninety_nine_abominable_bot"])
@@ -218,7 +218,10 @@ def cmd_99_rotation(message):
 
 @bot.message_handler(commands=["random", "random@ninety_nine_abominable_bot"])
 def cmd_random(message):
-  Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':markovify_text_model.make_sentence()}).start()
+  msg = bot.reply_to(message, markovify_text_model.make_sentence())
+  queued_message_for_delete(message, time=1)
+  queued_message_for_delete(msg)
+
 
 def counter_update(message):
   current_username = message.from_user.username

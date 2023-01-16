@@ -138,7 +138,7 @@ def set_delete_delay_cmd(message):
 
 @bot.message_handler(commands=['set_random'])
 def set_ramdom_cmd(message):
-  global time_delete
+  global msg_random
   admins_table = Abd.select().where(Abd.is_admin == True).order_by(Abd.messages_count, Abd.last_message_date).dicts().execute()
   admins_dict = [d['username'] for d in admins_table]
   if message.from_user.username not in admins_dict:
@@ -147,8 +147,8 @@ def set_ramdom_cmd(message):
       queued_message_for_delete(msg)
       return
   else:
-    random = int(extract_arg(message.text)[0])
-    msg = bot.reply_to(message, f"Рандомные сообщений будут показываться каждый {random} сообщений")
+    msg_random = int(extract_arg(message.text)[0])
+    msg = bot.reply_to(message, f"Рандомные сообщений будут показываться каждый {msg_random} сообщений")
     queued_message_for_delete(message)
     queued_message_for_delete(msg)
 

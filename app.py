@@ -10,7 +10,7 @@ import random
 import operator
 
 
-db = SqliteDatabase('99-abd.db')
+db = SqliteDatabase('./database/99-abd.db')
 token="XXX"
 bot=telebot.TeleBot(token)
 

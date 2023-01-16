@@ -107,19 +107,6 @@ def queued_message_for_delete(message, time=time_delete):
   livetime = datetime.datetime.now() + datetime.timedelta(seconds=time)
   Query.create(message_id=message.message_id, chat_id=message.chat.id, abs_time_live=livetime)
 
-@bot.message_handler(commands=["dg", "dg@ninety_nine_abominable_bot"])
-def cmd_day_gay(message):
-  date_string = datetime.datetime.today().strftime('%d/%m/%Y')
-  epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
-  random.seed(epoch_date+1)
-  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-3)).order_by(Abd.messages_count, Abd.last_message_date).dicts().execute()
-  day_gay = random.choice(users)["username"]
-  msg = bot.send_message(message.chat.id, f"🎉 Сегодня ГЕЙ 🌈 дня (и вечера) (/dg) - @{day_gay}")
-  queued_message_for_delete(message)
-  queued_message_for_delete(msg)
-  random.seed()
-  return
-
 @bot.message_handler(commands=['set_delete_delay'])
 def set_delete_delay_cmd(message):
   global time_delete
@@ -152,12 +139,26 @@ def set_ramdom_cmd(message):
     queued_message_for_delete(message)
     queued_message_for_delete(msg)
 
+
+@bot.message_handler(commands=["dg", "dg@ninety_nine_abominable_bot"])
+def cmd_day_gay(message):
+  date_string = datetime.datetime.today().strftime('%d/%m/%Y')
+  epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
+  random.seed(epoch_date+1)
+  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-3)).order_by(Abd.username).dicts().execute()
+  day_gay = random.choice(users)["username"]
+  msg = bot.send_message(message.chat.id, f"🎉 Сегодня ГЕЙ 🌈 дня (и вечера) (/dg) - @{day_gay}")
+  queued_message_for_delete(message)
+  queued_message_for_delete(msg)
+  random.seed()
+  return
+
 @bot.message_handler(commands=["df", "df@ninety_nine_abominable_bot"])
 def cmd_day_faggot(message):
   date_string = datetime.datetime.today().strftime('%d/%m/%Y')
   epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
   random.seed(epoch_date+4)
-  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-3)).order_by(Abd.messages_count, Abd.last_message_date).dicts().execute()
+  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-3)).order_by(Abd.username).dicts().execute()
   day_farrot = random.choice(users)["username"]
   msg = bot.send_message(message.chat.id, f"Сегодня ПИДОР 🎉 дня (и вечера) (/df) - @{day_farrot}")
   queued_message_for_delete(message)
@@ -170,7 +171,7 @@ def cmd_day_couple(message):
   date_string = datetime.datetime.today().strftime('%d/%m/%Y')
   epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
   random.seed(epoch_date+2)
-  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-3)).order_by(Abd.messages_count, Abd.last_message_date).dicts().execute()
+  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-3)).order_by(Abd.username).dicts().execute()
   p1 = random.choice(users)["username"]
   p2 = random.choice(users)["username"]
   msg = bot.send_message(message.chat.id, f"🎉 Сегодня ПАРА 😳 дня (/dc) - @{p1} и @{p2} 💕 🐕 ЕБИТЕС 🐕")
@@ -184,7 +185,7 @@ def cmd_day_pretty(message):
   date_string = datetime.datetime.today().strftime('%d/%m/%Y')
   epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
   random.seed(epoch_date+3)
-  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-3)).order_by(Abd.messages_count, Abd.last_message_date).dicts().execute()
+  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-3)).order_by(Abd.username).dicts().execute()
   pretty = random.choice(users)["username"]
   msg = bot.send_message(message.chat.id, f"🎉 Сегодня КРАСАВЧИК 😊 дня (/dp) - @{pretty}")
   queued_message_for_delete(message)
@@ -261,7 +262,7 @@ def find_reply_to_queued(message):
 
 @bot.message_handler()
 def all_messages(message):
-  #print(message)
+  print(message)
 
   if delete_bots_messages(message): return
   find_reply_to_queued(message)

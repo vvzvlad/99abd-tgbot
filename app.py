@@ -35,41 +35,41 @@ class Abd(Model):
     group_id = CharField(column_name='group_id')
     class Meta:
         database = db
-
-#Abd.create_table()
+Abd.create_table()
 
 class Creds(Model):
     creds_name = CharField(primary_key=True)
     creds_value = CharField()
     class Meta:
         database = db
-
-#Creds.create_table()
+Creds.create_table()
 #Creds.create(creds_name='tg_bot_token', creds_value="ХХХ")
+#Creds.create(creds_name='tg_bot_id', creds_value="5944502638")
 token = Creds.select().where(Creds.creds_name == "tg_bot_token").dicts().execute()[0]["creds_value"]
+bot_id = Creds.select().where(Creds.creds_name == "tg_bot_id").dicts().execute()[0]["creds_value"]
 bot = telebot.TeleBot(token)
 
 
+class Query(Model):
+    message_id = IntegerField()
+    chat_id = IntegerField()
+    abs_time_live = DateTimeField()
+    class Meta:
+        database = db
+Query.create_table()
 
 
-def wait_and_delete(chat_id, message_id, wait_time=60*60):
-  time.sleep(wait_time)
-  bot.delete_message(chat_id, message_id)
-  print(f"Deleted: {message_id} in chat {chat_id}")
+
+
+
+
+
+
 
 
 def wait_and_reply(reply_to_message, message):
   time.sleep(random.uniform(2, 8))
   bot.reply_to(reply_to_message, message)
-
-
-def queued_message_for_delete(message):
-  if message.via_bot is not None:
-    print(f"Queued: {message.text} from {message.from_user.username} via bot {message.via_bot.username}")
-  else:
-    print(f"Queued: {message.text} from {message.from_user.username}")
-  Thread(target=wait_and_delete,kwargs={'chat_id':message.chat.id, 'message_id':message.message_id, 'wait_time':time_delete}).start()
-
 
 def wait_and_exit_user(chat_id, user_id, username):
   time.sleep(10)
@@ -77,10 +77,30 @@ def wait_and_exit_user(chat_id, user_id, username):
   bot.send_message(chat_id, f"@{username} удален из чата")
   print(f"Kick: username in chat {chat_id}")
 
+def messages_deleter():
+  while True:
+    time.sleep(1)
+    messages = Query.select().where(Query.abs_time_live < datetime.datetime.today()).dicts().execute()
+    for message in messages:
+      msg_id = message["message_id"]
+      chat_id = message["chat_id"]
+      Query.get((Query.message_id == msg_id) & (Query.chat_id == chat_id)).delete_instance()
+      try:
+        bot.delete_message(chat_id, msg_id)
+        print(f"Deleted: {msg_id} in chat {chat_id}")
+      except telebot.apihelper.ApiTelegramException as e:
+        print(f"Not deleted: {msg_id} in chat {chat_id} - {e}")
 
 
-def unqueued_message_for_delete(message_id, chat_id):
-  pass
+
+
+def queued_message_for_delete(message):
+  if message.via_bot is not None:
+    print(f"Queued: id {message.message_id}: '{message.text}' from {message.from_user.username} via bot {message.via_bot.username} in {time_delete}")
+  else:
+    print(f"Queued: id {message.message_id}: '{message.text}' from {message.from_user.username} in {time_delete}")
+  livetime = datetime.datetime.now() + datetime.timedelta(seconds=time_delete)
+  Query.create(message_id=message.message_id, chat_id=message.chat.id, abs_time_live=livetime)
 
 @bot.message_handler(commands=["dg", "dg@ninety_nine_abominable_bot"])
 def cmd_day_gay(message):
@@ -94,6 +114,22 @@ def cmd_day_gay(message):
   queued_message_for_delete(msg)
   random.seed()
   return
+
+@bot.message_handler(commands=['set_delete_delay'])
+def set_delete_delay_cmd(message):
+  global time_delete
+  admins_table = Abd.select().where(Abd.is_admin == True).order_by(Abd.messages_count, Abd.last_message_date).dicts().execute()
+  admins_dict = [d['username'] for d in admins_table]
+  if message.from_user.username not in admins_dict:
+      msg = bot.reply_to(message, f"Ты не админ")
+      queued_message_for_delete(message)
+      queued_message_for_delete(msg)
+      return
+  else:
+    time_delete = int(extract_arg(message.text)[0])
+    msg = bot.reply_to(message, f"Задержка установлена в {time_delete} секунд")
+    queued_message_for_delete(message)
+    queued_message_for_delete(msg)
 
 @bot.message_handler(commands=["df", "df@ninety_nine_abominable_bot"])
 def cmd_day_faggot(message):
@@ -159,11 +195,7 @@ def cmd_99_rotation(message):
   user_for_delete_dbnode = Abd.get(Abd.user_id == userid_for_delete)
   user_for_delete_dbnode.delete_instance()
 
-@bot.message_handler()
-def all_messages(message):
-  if delete_bots_messages(message): return
-  counter_update(message)
-  random_message(message)
+
 
 def counter_update(message):
   current_username = message.from_user.username
@@ -187,7 +219,31 @@ def delete_bots_messages(message):
       return True
   return False
 
+def find_reply_to_queued(message):
+  if message.reply_to_message is not None:
+    reply_to_user_id = int(message.reply_to_message.json["from"]["id"])
+    reply_to_message_id = int(message.reply_to_message.json["message_id"])
+    reply_in_chat_id = int(message.reply_to_message.chat.id)
+    print(reply_to_user_id)
+    if reply_to_user_id == int(bot_id):
+      print(reply_to_user_id, reply_to_message_id, reply_in_chat_id)
+      try:
+        Query.get((Query.message_id == reply_to_message_id) & (Query.chat_id == reply_in_chat_id)).delete_instance()
+        print(f"Unqueued: {reply_to_message_id} in {reply_in_chat_id}")
+      except Query.DoesNotExist:
+        pass
 
+@bot.message_handler()
+def all_messages(message):
+  #print(message)
+
+  if delete_bots_messages(message): return
+  find_reply_to_queued(message)
+  counter_update(message)
+  random_message(message)
+
+
+Thread(target=messages_deleter).start()
 bot.infinity_polling()
 
 

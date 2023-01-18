@@ -262,7 +262,7 @@ def find_reply_to_queued(message):
 
 @bot.message_handler()
 def all_messages(message):
-  print(message)
+  #print(message)
 
   if delete_bots_messages(message): return
   find_reply_to_queued(message)

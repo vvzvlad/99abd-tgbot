@@ -210,7 +210,7 @@ def cmd_day_gay(message):
 def cmd_day_faggot(message):
   date_string = datetime.datetime.today().strftime('%d/%m/%Y')
   epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
-  random.seed(epoch_date+4)
+  random.seed(epoch_date+2)
   users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-3)).order_by(Abd.username).dicts().execute()
   day_farrot = random.choice(users)["username"]
   msg = bot.send_message(message.chat.id, f"Сегодня ПИДОР 🎉 дня (и вечера) (/df) - @{day_farrot}")
@@ -236,7 +236,7 @@ def cmd_day_faggot(message):
 def cmd_day_couple(message):
   date_string = datetime.datetime.today().strftime('%d/%m/%Y')
   epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
-  random.seed(epoch_date+2)
+  random.seed(epoch_date+4)
   users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-3)).order_by(Abd.username).dicts().execute()
   p1 = random.choice(users)["username"]
   p2 = random.choice(users)["username"]
@@ -250,7 +250,7 @@ def cmd_day_couple(message):
 def cmd_day_pretty(message):
   date_string = datetime.datetime.today().strftime('%d/%m/%Y')
   epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
-  random.seed(epoch_date+3)
+  random.seed(epoch_date+5)
   users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-3)).order_by(Abd.username).dicts().execute()
   pretty = random.choice(users)["username"]
   msg = bot.send_message(message.chat.id, f"🎉 Сегодня КРАСАВЧИК 😊 дня (/dp) - @{pretty}")

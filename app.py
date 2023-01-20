@@ -292,12 +292,17 @@ def cmd_random(message):
 
 
 def counter_update(message):
-  current_username = message.from_user.username
+  first_name = message.from_user.first_name or ""
+  last_name = message.from_user.last_name or ""
+  if last_name != "":
+    last_name = " " + last_name
+  username = message.from_user.username or (first_name + last_name)
+
   try:
     user = Abd.get(Abd.user_id == message.from_user.id)
     Abd.update(messages_count=user.messages_count + 1, last_message_date=datetime.datetime.today()).where(Abd.user_id == message.from_user.id).execute()
   except Abd.DoesNotExist:
-    Abd.create(username=message.from_user.username, user_id=message.from_user.id, join_date=datetime.datetime.today(), last_message_date=datetime.datetime.today(), is_admin=False, messages_count=1, group_id=message.chat.id)
+    Abd.create(username=username, user_id=message.from_user.id, join_date=datetime.datetime.today(), last_message_date=datetime.datetime.today(), is_admin=False, messages_count=1, group_id=message.chat.id)
 
 def random_message(message):
   rnd_count = random.randrange(0, msg_random, 1)

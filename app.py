@@ -317,9 +317,7 @@ def find_reply_to_queued(message):
     reply_to_user_id = int(message.reply_to_message.json["from"]["id"])
     reply_to_message_id = int(message.reply_to_message.json["message_id"])
     reply_in_chat_id = int(message.reply_to_message.chat.id)
-    print(reply_to_user_id)
     if reply_to_user_id == int(bot_id):
-      print(reply_to_user_id, reply_to_message_id, reply_in_chat_id)
       try:
         Query.get((Query.message_id == reply_to_message_id) & (Query.chat_id == reply_in_chat_id)).delete_instance()
         print(f"Unqueued: {reply_to_message_id} in {reply_in_chat_id}")

@@ -219,6 +219,19 @@ def cmd_day_faggot(message):
   random.seed()
   return
 
+@bot.message_handler(commands=["dfur", "dfur@ninety_nine_abominable_bot"])
+def cmd_day_faggot(message):
+  date_string = datetime.datetime.today().strftime('%d/%m/%Y')
+  epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
+  random.seed(epoch_date+3)
+  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-3)).order_by(Abd.username).dicts().execute()
+  day_furri = random.choice(users)["username"]
+  msg = bot.send_message(message.chat.id, f"Сегодня 🦄 ФУРРИ 🐶  дня (и вечера) (/dfur) - 🐰 @{day_furri} 🐳")
+  queued_message_for_delete(message)
+  queued_message_for_delete(msg)
+  random.seed()
+  return
+
 @bot.message_handler(commands=["dc", "dc@ninety_nine_abominable_bot"])
 def cmd_day_couple(message):
   date_string = datetime.datetime.today().strftime('%d/%m/%Y')

@@ -9,6 +9,8 @@ import datetime
 import random
 import operator
 import markovify
+import schedule
+from munch import Munch
 
 
 print("Load ru_arduino coprus..")
@@ -71,6 +73,7 @@ db = SqliteDatabase('./database/99-abd.db')
 
 time_delete = 60*10
 msg_random = 100
+
 
 def is_member(chat_id, user_id):
     try:
@@ -149,10 +152,24 @@ def messages_deleter():
       except telebot.apihelper.ApiTelegramException as e:
         print(f"Not deleted: {msg_id} in chat {chat_id} - {e}")
 
+def schedule_worker():
+  chat_id = "-1001387877165"
+  message = Munch.fromDict({"chat": {"id": chat_id}, "fake": True, "from_user": {"username": "vvzvlad"}})
+  schedule.every().day.at("10:32").do(cmd_day_gay, message)
+  schedule.every().day.at("13:48").do(cmd_day_faggot, message)
+  schedule.every().day.at("16:12").do(cmd_day_furr, message)
+  schedule.every().day.at("19:59").do(cmd_day_couple, message)
+  schedule.every().day.at("22:02").do(cmd_day_pretty, message)
 
+  schedule.every().monday.at("12:10").do(cmd_99_rotation, message)
+  schedule.every().tuesday.at("16:42").do(cmd_99_rotation, message)
+  while True:
+    time.sleep(1)
+    schedule.run_pending()
 
 
 def queued_message_for_delete(message, time=time_delete):
+  if hasattr(message, "fake") and getattr(message, "fake") is not None: return
   if message.via_bot is not None:
     print(f"Queued: id {message.message_id}: '{message.text}' from {message.from_user.username} via bot {message.via_bot.username} in {time}")
   else:
@@ -198,7 +215,7 @@ def cmd_day_gay(message):
   date_string = datetime.datetime.today().strftime('%d/%m/%Y')
   epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
   random.seed(epoch_date+1)
-  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-3)).order_by(Abd.username).dicts().execute()
+  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
   day_gay = random.choice(users)["username"]
   msg = bot.send_message(message.chat.id, f"🎉 Сегодня ГЕЙ 🌈 дня (и вечера) (/dg) - @{day_gay}")
   queued_message_for_delete(message)
@@ -211,7 +228,7 @@ def cmd_day_faggot(message):
   date_string = datetime.datetime.today().strftime('%d/%m/%Y')
   epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
   random.seed(epoch_date+2)
-  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-3)).order_by(Abd.username).dicts().execute()
+  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
   day_farrot = random.choice(users)["username"]
   msg = bot.send_message(message.chat.id, f"Сегодня ПИДОР 🎉 дня (и вечера) (/df) - @{day_farrot}")
   queued_message_for_delete(message)
@@ -220,11 +237,11 @@ def cmd_day_faggot(message):
   return
 
 @bot.message_handler(commands=["dfur", "dfur@ninety_nine_abominable_bot"])
-def cmd_day_faggot(message):
+def cmd_day_furr(message):
   date_string = datetime.datetime.today().strftime('%d/%m/%Y')
   epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
   random.seed(epoch_date+3)
-  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-3)).order_by(Abd.username).dicts().execute()
+  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
   day_furri = random.choice(users)["username"]
   msg = bot.send_message(message.chat.id, f"Сегодня 🦄 ФУРРИ 🐶  дня (и вечера) (/dfur) - 🐰 @{day_furri} 🐳")
   queued_message_for_delete(message)
@@ -237,7 +254,7 @@ def cmd_day_couple(message):
   date_string = datetime.datetime.today().strftime('%d/%m/%Y')
   epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
   random.seed(epoch_date+4)
-  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-3)).order_by(Abd.username).dicts().execute()
+  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
   p1 = random.choice(users)["username"]
   p2 = random.choice(users)["username"]
   msg = bot.send_message(message.chat.id, f"🎉 Сегодня ПАРА 😳 дня (/dc) - @{p1} и @{p2} 💕 🐕 ЕБИТЕС 🐕")
@@ -251,7 +268,7 @@ def cmd_day_pretty(message):
   date_string = datetime.datetime.today().strftime('%d/%m/%Y')
   epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
   random.seed(epoch_date+5)
-  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-3)).order_by(Abd.username).dicts().execute()
+  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
   pretty = random.choice(users)["username"]
   msg = bot.send_message(message.chat.id, f"🎉 Сегодня КРАСАВЧИК 😊 дня (/dp) - @{pretty}")
   queued_message_for_delete(message)
@@ -263,7 +280,7 @@ def cmd_day_pretty(message):
 def cmd_99_rotation(message):
   admins_table = Abd.select().where(Abd.is_admin == True).order_by(Abd.messages_count, Abd.last_message_date).dicts().execute()
   admins_dict = [d['username'] for d in admins_table]
-  if message.from_user.username not in admins_dict:
+  if message.from_user.username not in admins_dict and (hasattr(message, "fake") and getattr(message, "fake")) is None:
     msg = bot.reply_to(message, f"Ты не админ")
     queued_message_for_delete(message)
     queued_message_for_delete(msg)
@@ -340,6 +357,7 @@ def all_messages(message):
 
 
 Thread(target=messages_deleter).start()
+Thread(target=schedule_worker).start()
 print("Bot started")
 bot.infinity_polling()
 

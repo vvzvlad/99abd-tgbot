@@ -10,9 +10,62 @@ import random
 import operator
 import markovify
 
-with open("./database/99_corpus.txt") as f:
-    text = f.read()
-markovify_text_model = markovify.NewlineText(text, state_size=2)
+
+print("Load ru_arduino coprus..")
+with open("./database/corpus/ru_arduino.txt") as f:
+  ru_arduino = f.read()
+markovify_ru_arduino_model = markovify.NewlineText(ru_arduino, state_size=2)
+print("Loaded.")
+
+print("Load flipper_main coprus..")
+with open("./database/corpus/flipper_main_chat.txt") as f:
+  flipper_main_chat = f.read()
+markovify_flipper_main_chat_model = markovify.NewlineText(flipper_main_chat, state_size=2)
+print("Loaded.")
+
+print("Load electronics coprus..")
+with open("./database/corpus/electronics.txt") as f:
+  electronics = f.read()
+markovify_electronics_model = markovify.NewlineText(electronics, state_size=2)
+print("Loaded.")
+
+print("Load flipper_99 coprus..")
+with open("./database/corpus/flipper_99_chat.txt") as f:
+  flipper_99_chat = f.read()
+markovify_flipper_99_chat_model = markovify.NewlineText(flipper_99_chat, state_size=2)
+print("Loaded.")
+
+print("Load antivacs coprus..")
+with open("./database/corpus/antivacs.txt") as f:
+  antivacs = f.read()
+markovify_antivacs_model = markovify.NewlineText(antivacs, state_size=2)
+print("Loaded.")
+
+print("Load zhovner coprus..")
+with open("./database/corpus/zhovner.txt") as f:
+  zhovner = f.read()
+markovify_zhovner_model = markovify.NewlineText(zhovner, state_size=2)
+print("Loaded.")
+
+print("Load flipper_offtopic coprus..")
+with open("./database/corpus/flipper_offtopic_chat.txt") as f:
+  flipper_offtopic_chat = f.read()
+markovify_flipper_offtopic_chat_model = markovify.NewlineText(flipper_offtopic_chat, state_size=2)
+print("Loaded.")
+
+print("Load forcedme coprus..")
+with open("./database/corpus/forced.txt") as f:
+  forced = f.read()
+markovify_forced_model = markovify.NewlineText(forced, state_size=2)
+print("Loaded.")
+
+
+model_combo = markovify.combine([ markovify_flipper_99_chat_model, markovify_flipper_offtopic_chat_model, markovify_flipper_main_chat_model, markovify_forced_model, markovify_zhovner_model, markovify_electronics_model, markovify_ru_arduino_model, markovify_antivacs_model ], [ 1.5, 0.3, 0.3, 1.2, 1.2, 0.1, 0.1, 0.3 ])
+print("Combine coprus..")
+
+
+
+
 
 db = SqliteDatabase('./database/99-abd.db')
 
@@ -219,7 +272,8 @@ def cmd_99_rotation(message):
 
 @bot.message_handler(commands=["random", "random@ninety_nine_abominable_bot"])
 def cmd_random(message):
-  msg = bot.reply_to(message, markovify_text_model.make_sentence())
+  #size = int(extract_arg(message.text)[0])
+  msg = bot.reply_to(message, model_combo.make_sentence())
   queued_message_for_delete(message, time=1)
   queued_message_for_delete(msg)
 
@@ -235,8 +289,7 @@ def counter_update(message):
 def random_message(message):
   rnd_count = random.randrange(0, msg_random, 1)
   if message.text[0] != "/" and rnd_count == 0:
-    #messages = ["Бля, а доказать сможешь?", "Обоснуй", "Ой, кажется мне, ты пиздишь", "Нихуя себе", "Ты чо, ебнулся?", "Ты чо, ебанулся?", "В жопу себе это засунь", "Не обижайся, но ты долбоеб", "Мой герой!", "Тебе заняться нечем?", "Сексизм какой-то", "А в чем суть?", "Расскажи нормально, не понял нихуя", "О, это прекрасно"]
-    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':markovify_text_model.make_sentence()}).start()
+    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':model_combo.make_sentence()}).start()
 
 def delete_bots_messages(message):
   if message.via_bot is not None:
@@ -271,6 +324,7 @@ def all_messages(message):
 
 
 Thread(target=messages_deleter).start()
+print("Bot started")
 bot.infinity_polling()
 
 

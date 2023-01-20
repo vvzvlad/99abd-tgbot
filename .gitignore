@@ -6,3 +6,5 @@
 /parser/99-abd.db
 99-abd.db
 99_corpus.txt
+/database/corpus
+parser/tg_json_parser/datasets/*

@@ -105,7 +105,7 @@ def messages_deleter():
       try:
         bot.delete_message(chat_id, msg_id)
         print(f"Deleted: {msg_id} in chat {chat_id}")
-      except telebot.apihelper.ApiTelegramException as e:
+      except ApiTelegramException as e:
         print(f"Not deleted: {msg_id} in chat {chat_id} - {e}")
 
 def schedule_worker():

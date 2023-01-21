@@ -1,10 +1,6 @@
 .venv/*
-/parser/members_raw.txt
-/parser/members.json
-/99-abd.db
-/parser/99_export_chat.json
-/parser/99-abd.db
-99-abd.db
-99_corpus.txt
-/database/corpus
-parser/tg_json_parser/datasets/*
+**/database/**
+members_raw.txt
+members.json
+model_combo.json
+**/datasets/**

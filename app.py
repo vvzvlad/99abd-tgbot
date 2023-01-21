@@ -12,62 +12,12 @@ import markovify
 import schedule
 from munch import Munch
 
-
-print("Load ru_arduino coprus..")
-with open("./database/corpus/ru_arduino.txt") as f:
-  ru_arduino = f.read()
-markovify_ru_arduino_model = markovify.NewlineText(ru_arduino, state_size=2)
-print("Loaded.")
-
-print("Load flipper_main coprus..")
-with open("./database/corpus/flipper_main_chat.txt") as f:
-  flipper_main_chat = f.read()
-markovify_flipper_main_chat_model = markovify.NewlineText(flipper_main_chat, state_size=2)
-print("Loaded.")
-
-print("Load electronics coprus..")
-with open("./database/corpus/electronics.txt") as f:
-  electronics = f.read()
-markovify_electronics_model = markovify.NewlineText(electronics, state_size=2)
-print("Loaded.")
-
-print("Load flipper_99 coprus..")
-with open("./database/corpus/flipper_99_chat.txt") as f:
-  flipper_99_chat = f.read()
-markovify_flipper_99_chat_model = markovify.NewlineText(flipper_99_chat, state_size=2)
-print("Loaded.")
-
-print("Load antivacs coprus..")
-with open("./database/corpus/antivacs.txt") as f:
-  antivacs = f.read()
-markovify_antivacs_model = markovify.NewlineText(antivacs, state_size=2)
-print("Loaded.")
-
-print("Load zhovner coprus..")
-with open("./database/corpus/zhovner.txt") as f:
-  zhovner = f.read()
-markovify_zhovner_model = markovify.NewlineText(zhovner, state_size=2)
-print("Loaded.")
-
-print("Load flipper_offtopic coprus..")
-with open("./database/corpus/flipper_offtopic_chat.txt") as f:
-  flipper_offtopic_chat = f.read()
-markovify_flipper_offtopic_chat_model = markovify.NewlineText(flipper_offtopic_chat, state_size=2)
-print("Loaded.")
-
-print("Load forcedme coprus..")
-with open("./database/corpus/forced.txt") as f:
-  forced = f.read()
-markovify_forced_model = markovify.NewlineText(forced, state_size=2)
-print("Loaded.")
-
-
-model_combo = markovify.combine([ markovify_flipper_99_chat_model, markovify_flipper_offtopic_chat_model, markovify_flipper_main_chat_model, markovify_forced_model, markovify_zhovner_model, markovify_electronics_model, markovify_ru_arduino_model, markovify_antivacs_model ], [ 1.5, 0.3, 0.3, 1.2, 1.2, 0.1, 0.1, 0.3 ])
-print("Combine coprus..")
-
-
-
-
+print("Load markovify model..")
+with open('./database/model_combo.json') as file:
+  model_json = file.read()
+  print("Loaded. Importing..")
+  model_combo = markovify.Text.from_json(model_json)
+print("Loaded and imported.")
 
 db = SqliteDatabase('./database/99-abd.db')
 

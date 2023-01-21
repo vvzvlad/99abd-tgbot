@@ -109,8 +109,9 @@ def messages_deleter():
         print(f"Not deleted: {msg_id} in chat {chat_id} - {e}")
 
 def schedule_worker():
-  chat_id = "-1001387877165"
-  message = Munch.fromDict({"chat": {"id": chat_id}, "fake": True, "from_user": {"username": "vvzvlad"}})
+  chat_id = "-1001387877165" #99
+  #chat_id = "-699513317" #test
+  message = Munch.fromDict({"chat": {"id": chat_id}, "scheduled": True, "from_user": {"username": "vvzvlad"}})
   schedule.every().day.at("10:32").do(cmd_day_gay, message)
   schedule.every().day.at("13:48").do(cmd_day_faggot, message)
   schedule.every().day.at("16:12").do(cmd_day_furr, message)
@@ -125,7 +126,7 @@ def schedule_worker():
 
 
 def queued_message_for_delete(message, time=time_delete):
-  if hasattr(message, "fake") and getattr(message, "fake") is not None: return
+  if (hasattr(message, "scheduled")) is True: return
   if message.via_bot is not None:
     print(f"Queued: id {message.message_id}: '{message.text}' from {message.from_user.username} via bot {message.via_bot.username} in {time}")
   else:
@@ -174,8 +175,9 @@ def cmd_day_gay(message):
   users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
   day_gay = random.choice(users)["username"]
   msg = bot.send_message(message.chat.id, f"🎉 Сегодня ГЕЙ 🌈 дня (и вечера) (/dg) - @{day_gay}")
-  queued_message_for_delete(message)
-  queued_message_for_delete(msg)
+  if (hasattr(message, "scheduled")) is False:
+    queued_message_for_delete(message)
+    queued_message_for_delete(msg)
   random.seed()
   return
 
@@ -187,8 +189,9 @@ def cmd_day_faggot(message):
   users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
   day_farrot = random.choice(users)["username"]
   msg = bot.send_message(message.chat.id, f"Сегодня ПИДОР 🎉 дня (и вечера) (/df) - @{day_farrot}")
-  queued_message_for_delete(message)
-  queued_message_for_delete(msg)
+  if (hasattr(message, "scheduled")) is False:
+    queued_message_for_delete(message)
+    queued_message_for_delete(msg)
   random.seed()
   return
 
@@ -200,8 +203,9 @@ def cmd_day_furr(message):
   users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
   day_furri = random.choice(users)["username"]
   msg = bot.send_message(message.chat.id, f"Сегодня 🦄 ФУРРИ 🐶  дня (и вечера) (/dfur) - 🐰 @{day_furri} 🐳")
-  queued_message_for_delete(message)
-  queued_message_for_delete(msg)
+  if (hasattr(message, "scheduled")) is False:
+    queued_message_for_delete(message)
+    queued_message_for_delete(msg)
   random.seed()
   return
 
@@ -214,8 +218,9 @@ def cmd_day_couple(message):
   p1 = random.choice(users)["username"]
   p2 = random.choice(users)["username"]
   msg = bot.send_message(message.chat.id, f"🎉 Сегодня ПАРА 😳 дня (/dc) - @{p1} и @{p2} 💕 🐕 ЕБИТЕС 🐕")
-  queued_message_for_delete(message)
-  queued_message_for_delete(msg)
+  if (hasattr(message, "scheduled")) is False:
+    queued_message_for_delete(message)
+    queued_message_for_delete(msg)
   random.seed()
   return
 
@@ -227,8 +232,9 @@ def cmd_day_pretty(message):
   users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
   pretty = random.choice(users)["username"]
   msg = bot.send_message(message.chat.id, f"🎉 Сегодня КРАСАВЧИК 😊 дня (/dp) - @{pretty}")
-  queued_message_for_delete(message)
-  queued_message_for_delete(msg)
+  if (hasattr(message, "scheduled")) is False:
+    queued_message_for_delete(message)
+    queued_message_for_delete(msg)
   random.seed()
   return
 
@@ -236,10 +242,11 @@ def cmd_day_pretty(message):
 def cmd_99_rotation(message):
   admins_table = Abd.select().where(Abd.is_admin == True).order_by(Abd.messages_count, Abd.last_message_date).dicts().execute()
   admins_dict = [d['username'] for d in admins_table]
-  if message.from_user.username not in admins_dict and (hasattr(message, "fake") and getattr(message, "fake")) is None:
+  if message.from_user.username not in admins_dict:
     msg = bot.reply_to(message, f"Ты не админ")
-    queued_message_for_delete(message)
-    queued_message_for_delete(msg)
+    if (hasattr(message, "scheduled")) is False:
+      queued_message_for_delete(message)
+      queued_message_for_delete(msg)
     return
 
   datetime_3weeks_ago = datetime.datetime.today() + datetime.timedelta(weeks=-3)

@@ -57,7 +57,7 @@ print("Load forcedme corpus..")
 with open("./datasets/txt/forced.json.txt") as f:
   forced = f.read()
   print("Loaded, generate model..")
-markovify_forced_model = markovify.NewlineText(forced, state_size=2, retain_original=False)
+markovify_forcedme_model = markovify.NewlineText(forced, state_size=2, retain_original=False)
 print("Generated.")
 
 
@@ -65,7 +65,7 @@ print("Combine models..")
 model_combo = markovify.combine([ markovify_flipper_99_chat_model,
                                   markovify_flipper_offtopic_chat_model,
                                   markovify_flipper_main_chat_model,
-                                  markovify_forced_model,
+                                  markovify_forcedme_model,
                                   markovify_zhovner_model,
                                   markovify_electronics_model,
                                   markovify_ru_arduino_model,

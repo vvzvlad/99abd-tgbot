@@ -11,6 +11,12 @@ import operator
 import markovify
 import schedule
 from munch import Munch
+import argparse
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--db', type=str, default="./database/99-abd.db")
+args = parser.parse_args()
 
 print("Load markovify model..")
 with open('./database/model_combo.json') as file:
@@ -19,7 +25,7 @@ with open('./database/model_combo.json') as file:
   model_combo = markovify.Text.from_json(model_json)
 print("Loaded and imported.")
 
-db = SqliteDatabase('./database/99-abd.db')
+db = SqliteDatabase(args.db)
 
 time_delete = 60*10
 msg_random = 100

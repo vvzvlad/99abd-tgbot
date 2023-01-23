@@ -21,19 +21,19 @@ args = parser.parse_args()
 print("Load markovify models..")
 with open('./database/model_combo.json') as file:
   model_json = file.read()
-  print("Model combo coaded. Importing..")
+  print("Model combo loaded. Importing..")
   model_combo = markovify.Text.from_json(model_json)
   print("Loaded and imported.")
 
 with open('./database/astra.json') as file:
   model_json = file.read()
-  print("Model astra coaded. Importing..")
+  print("Model astra loaded. Importing..")
   model_astra = markovify.Text.from_json(model_json)
   print("Loaded and imported.")
 
 with open('./database/koteeq.json') as file:
   model_json = file.read()
-  print("Model koteeq coaded. Importing..")
+  print("Model koteeq loaded. Importing..")
   model_koteeq = markovify.Text.from_json(model_json)
   print("Loaded and imported.")
 

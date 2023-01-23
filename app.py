@@ -18,12 +18,24 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--db', type=str, default="./database/99-abd.db")
 args = parser.parse_args()
 
-print("Load markovify model..")
+print("Load markovify models..")
 with open('./database/model_combo.json') as file:
   model_json = file.read()
-  print("Loaded. Importing..")
+  print("Model combo coaded. Importing..")
   model_combo = markovify.Text.from_json(model_json)
-print("Loaded and imported.")
+  print("Loaded and imported.")
+
+with open('./database/astra.json') as file:
+  model_json = file.read()
+  print("Model astra coaded. Importing..")
+  model_astra = markovify.Text.from_json(model_json)
+  print("Loaded and imported.")
+
+with open('./database/koteeq.json') as file:
+  model_json = file.read()
+  print("Model koteeq coaded. Importing..")
+  model_koteeq = markovify.Text.from_json(model_json)
+  print("Loaded and imported.")
 
 db = SqliteDatabase(args.db)
 
@@ -267,6 +279,20 @@ def cmd_99_rotation(message):
 def cmd_random(message):
   #size = int(extract_arg(message.text)[0])
   msg = bot.reply_to(message, model_combo.make_sentence())
+  queued_message_for_delete(message, time=1)
+  queued_message_for_delete(msg)
+
+@bot.message_handler(commands=["astrandom", "astrandom@ninety_nine_abominable_bot"])
+def cmd_astra_random(message):
+  #size = int(extract_arg(message.text)[0])
+  msg = bot.reply_to(message, model_astra.make_sentence())
+  queued_message_for_delete(message, time=1)
+  queued_message_for_delete(msg)
+
+@bot.message_handler(commands=["koterand", "koterand@ninety_nine_abominable_bot"])
+def cmd_koteeq_random(message):
+  #size = int(extract_arg(message.text)[0])
+  msg = bot.reply_to(message, model_koteeq.make_sentence())
   queued_message_for_delete(message, time=1)
   queued_message_for_delete(msg)
 

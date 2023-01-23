@@ -50,6 +50,8 @@ def is_member(chat_id, user_id):
     except ApiTelegramException as e:
         if e.result_json['description'] == 'Bad Request: user not found':
             return False
+    except Exception as e:
+            print(f'Unknown error: {e.__class__.__name__}')
 
 def extract_arg(arg):
     return arg.split()[1:]
@@ -117,8 +119,10 @@ def messages_deleter():
       try:
         bot.delete_message(chat_id, msg_id)
         print(f"Deleted: {msg_id} in chat {chat_id}")
-      except ApiTelegramException as e:
-        print(f"Not deleted: {msg_id} in chat {chat_id} - {e}")
+#      except ApiTelegramException as e:
+#        print(f"Not deleted: {msg_id} in chat {chat_id} - {e}")
+      except Exception as e:
+        print(f'Error: {e.__class__.__name__}')
 
 def schedule_worker():
   chat_id = "-1001387877165" #99

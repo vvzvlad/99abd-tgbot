@@ -319,6 +319,13 @@ def random_message(message):
   if message.text[0] != "/" and rnd_count == 0:
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':model_combo.make_sentence()}).start()
 
+def random_cunt_message(message):
+  rnd_count = random.randrange(0, 5, 1)
+  if message.text[0] == "пизда":
+    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"Астры ответ"}).start()
+    return True
+  return False
+
 def delete_bots_messages(message):
   if message.via_bot is not None:
     delete_bots = ["yepcock_size_bot", "PredskazBot", "HowAllBot", "FairCocksizeBot", "ManPercentBot", "rus_cocksize_bot", "HowYourBot", "penis_size_checker_bot"]
@@ -346,6 +353,7 @@ def all_messages(message):
   if delete_bots_messages(message): return
   find_reply_to_queued(message)
   counter_update(message)
+  if random_cunt_message(message): return
   random_message(message)
 
 

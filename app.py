@@ -293,7 +293,7 @@ def cmd_astra_random(message):
   queued_message_for_delete(message, time=1)
   queued_message_for_delete(msg)
 
-@bot.message_handler(commands=["koterand", "koterand@ninety_nine_abominable_bot", "koterandom", "koteeq"])
+@bot.message_handler(commands=["koterand", "koterand@ninety_nine_abominable_bot", "koterandom", "koteeq" "koteeqrandom"])
 def cmd_koteeq_random(message):
   #size = int(extract_arg(message.text)[0])
   msg = bot.reply_to(message, model_koteeq.make_sentence())

@@ -283,21 +283,21 @@ def cmd_99_rotation(message):
 def cmd_random(message):
   #size = int(extract_arg(message.text)[0])
   msg = bot.reply_to(message, model_combo.make_sentence())
-  queued_message_for_delete(message, time=1)
+  queued_message_for_delete(message, time=2)
   queued_message_for_delete(msg)
 
-@bot.message_handler(commands=["astrandom", "astrandom@ninety_nine_abominable_bot", "astra", "astrarandom"])
+@bot.message_handler(commands=["astrandom", "astra", "astrarandom"])
 def cmd_astra_random(message):
   #size = int(extract_arg(message.text)[0])
   msg = bot.reply_to(message, model_astra.make_sentence())
-  queued_message_for_delete(message, time=1)
+  queued_message_for_delete(message, time=2)
   queued_message_for_delete(msg)
 
-@bot.message_handler(commands=["koterand", "koterand@ninety_nine_abominable_bot", "koterandom", "koteeq" "koteeqrandom"])
+@bot.message_handler(commands=["koterand", "koterandom", "koteeq" "koteeqrandom"])
 def cmd_koteeq_random(message):
   #size = int(extract_arg(message.text)[0])
   msg = bot.reply_to(message, model_koteeq.make_sentence())
-  queued_message_for_delete(message, time=1)
+  queued_message_for_delete(message, time=2)
   queued_message_for_delete(msg)
 
 

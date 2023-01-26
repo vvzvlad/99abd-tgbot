@@ -317,12 +317,31 @@ def counter_update(message):
 def random_message(message):
   rnd_count = random.randrange(0, msg_random, 1)
   if message.text[0] != "/" and rnd_count == 0:
-    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':model_combo.make_sentence()}).start()
+    rnd_count = random.randrange(0, 100, 1)
+    if rnd_count < 50:
+      gen_message = model_combo.make_sentence()
+      Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':gen_message}).start()
+    if rnd_count >= 50 and rnd_count < 75:
+      gen_message = 'Астра на это бы сказала "' + model_astra.make_sentence() + '"'
+      Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':gen_message}).start()
+    if rnd_count >= 75:
+      gen_message = 'Аня на это бы сказала "' + model_koteeq.make_sentence() + '"'
+      Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':gen_message}).start()
 
 def random_cunt_message(message):
-  rnd_count = random.randrange(0, 5, 1)
-  if message.text[0] == "пизда":
+  rnd_count = random.randrange(0, 2, 1)
+  if (message.text == "да" or message.text == "Да") and rnd_count == 0:
+    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"пизда"}).start()
+    return True
+  if (message.text == "пизда" or message.text == "Пизда") and rnd_count == 0:
+    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуй в уста"}).start()
+    return True
+  if (message.text == "нет" or message.text == "Нет") and rnd_count == 0:
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"Астры ответ"}).start()
+    return True
+  rnd_count = random.randrange(0, 10, 1)
+  if (message.text == "астра" or message.text == "Астра") and rnd_count == 0:
+    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястра!"}).start()
     return True
   return False
 

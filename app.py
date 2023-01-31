@@ -99,14 +99,16 @@ Query.create_table()
 
 
 def wait_and_reply(reply_to_message, message):
-  time.sleep(random.uniform(2, 8))
+  time.sleep(random.uniform(1, 4))
   bot.reply_to(reply_to_message, message)
 
 def wait_and_exit_user(chat_id, user_id, username):
-  time.sleep(10)
+  time.sleep(60*10)
   bot.unban_chat_member(chat_id, user_id)
   bot.send_message(chat_id, f"@{username} удален из чата")
   print(f"Kick: username in chat {chat_id}")
+  user_for_delete_dbnode = Abd.get(Abd.user_id == user_id)
+  user_for_delete_dbnode.delete_instance()
 
 def messages_deleter():
   while True:
@@ -254,15 +256,41 @@ def cmd_day_pretty(message):
   random.seed()
   return
 
+
+@bot.message_handler(commands=["help", "help@ninety_nine_abominable_bot"])
+def cmd_help(message):
+  msg = bot.send_message(message.chat.id, f"""🎉 Список команд 🎉
+  1. /df - ПЕДИК дня
+  5. /dfur - ФУРРИ дня
+  5. /dg - ГЕЙ дня
+  6. /dc - ПАРА дня
+  7. /dp - КРАСАВЧИК дня
+  8. /random — сообщение комбинированной модели
+  8. /astrandom — сообщение астрологической модели
+  8. /koterand — сообщение модели кота
+  """)
+
+  queued_message_for_delete(message)
+  queued_message_for_delete(msg)
+
+  return
+
+
 @bot.message_handler(commands=["99_rotation", "99_rotation@ninety_nine_abominable_bot"])
 def cmd_99_rotation(message):
+
   admins_table = Abd.select().where(Abd.is_admin == True).order_by(Abd.messages_count, Abd.last_message_date).dicts().execute()
   admins_dict = [d['username'] for d in admins_table]
   if message.from_user.username not in admins_dict:
-    msg = bot.reply_to(message, f"Ты не админ")
+    #msg = bot.reply_to(message, f"Нахуй иди")
+    msg = bot.send_message(message.chat.id, f"@{message.from_user.username} получил это письмо, потому что команда 👨‍🏫 биг дата 👩‍🏫 проанализровала его активности в телеграме и пометила его как невовлеченного 🙈 и малопродуктивного 🙉 шитпостера 🙊, который пытается отправлять команды админов. Удаление 🚮 произойдет через 10 минут ⏱. Повторная заявка на вступление будет рассмотрена в общем порядке. Еще раз спасибо за вклад (нет). Приятного дня (нет 🤷). С уважением (нет 🤷‍♂️), команда биг дата (нет 🤷‍♀️).")
     if (hasattr(message, "scheduled")) is False:
       queued_message_for_delete(message)
       queued_message_for_delete(msg)
+    return
+
+  if random.randrange(0, 7, 1) == 0:
+    msg = bot.reply_to(message, f"Да вы заебали, суууука")
     return
 
   datetime_3weeks_ago = datetime.datetime.today() + datetime.timedelta(weeks=-3)
@@ -272,12 +300,11 @@ def cmd_99_rotation(message):
   user_for_delete = users[0]["username"]
   userid_for_delete = users[0]["user_id"]
 
-  bot.send_message(message.chat.id, f"@{user_for_delete} получил это письмо, потому что команда 👨‍🏫 биг дата 👩‍🏫 проанализровала его активности в телеграме и пометила его как невовлеченного 🙈 и малопродуктивного 🙉 шитпостера 🙊. Надя и ее команда заботы  орагнизовали партнерство с ведущими 🤑 шитпост-каналами и мы поможем (нет) найти ему хорошее место, где он будет читать еще больше, а постить еще меньше. Удаление 🚮 произойдет через 10 секунд ⏱. Повторная заявка на вступление будет рассмотрена в общем порядке. Еще раз спасибо за вклад (нет). Приятного дня (нет 🤷). С уважением (нет 🤷‍♂️), команда биг дата (нет 🤷‍♀️).")
+  bot.send_message(message.chat.id, f"@{user_for_delete} получил это письмо, потому что команда 👨‍🏫 биг дата 👩‍🏫 проанализровала его активности в телеграме и пометила его как невовлеченного 🙈 и малопродуктивного 🙉 шитпостера 🙊. Надя и ее команда заботы  орагнизовали партнерство с ведущими 🤑 шитпост-каналами и мы поможем (нет) найти ему хорошее место, где он будет читать еще больше, а постить еще меньше. Удаление 🚮 произойдет через 10 минут ⏱. Повторная заявка на вступление будет рассмотрена в общем порядке. Еще раз спасибо за вклад (нет). Приятного дня (нет 🤷). С уважением (нет 🤷‍♂️), команда биг дата (нет 🤷‍♀️).")
 
   Thread(target=wait_and_exit_user,kwargs={'chat_id':message.chat.id, 'user_id':userid_for_delete, 'username':user_for_delete}).start()
 
-  user_for_delete_dbnode = Abd.get(Abd.user_id == userid_for_delete)
-  user_for_delete_dbnode.delete_instance()
+
 
 @bot.message_handler(commands=["random", "random@ninety_nine_abominable_bot"])
 def cmd_random(message):
@@ -288,18 +315,23 @@ def cmd_random(message):
 
 @bot.message_handler(commands=["astrandom", "astra", "astrarandom"])
 def cmd_astra_random(message):
-  #size = int(extract_arg(message.text)[0])
-  msg = bot.reply_to(message, model_astra.make_sentence())
-  queued_message_for_delete(message, time=2)
-  queued_message_for_delete(msg)
+  queued_message_for_delete(message, time=0.5)
+  if message.reply_to_message is not None:
+    msg = bot.send_message(message.chat.id, model_astra.make_sentence(), reply_to_message_id=message.reply_to_message.json["message_id"])
+    #model_koteeq.make_sentence_with_start(message.reply_to_message.text)
+  else:
+    msg = bot.reply_to(message, model_astra.make_sentence())
+    queued_message_for_delete(msg)
 
-@bot.message_handler(commands=["koterand", "koterandom", "koteeq" "koteeqrandom"])
+@bot.message_handler(commands=["koterand",  "koterandom", "koteeq" "koteeqrandom"])
 def cmd_koteeq_random(message):
-  #size = int(extract_arg(message.text)[0])
-  msg = bot.reply_to(message, model_koteeq.make_sentence())
-  queued_message_for_delete(message, time=2)
-  queued_message_for_delete(msg)
-
+  queued_message_for_delete(message, time=0.5)
+  if message.reply_to_message is not None:
+    msg = bot.send_message(message.chat.id, model_koteeq.make_sentence(), reply_to_message_id=message.reply_to_message.json["message_id"])
+    #model_koteeq.make_sentence_with_start(message.reply_to_message.text)
+  else:
+    msg = bot.reply_to(message, model_koteeq.make_sentence())
+    queued_message_for_delete(msg)
 
 def counter_update(message):
   first_name = message.from_user.first_name or ""
@@ -329,18 +361,45 @@ def random_message(message):
       Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':gen_message}).start()
 
 def random_cunt_message(message):
-  rnd_count = random.randrange(0, 2, 1)
-  if (message.text == "да" or message.text == "Да") and rnd_count == 0:
+  message_text = message.text.lower()
+  if message.reply_to_message is not None:
+    if int(message.reply_to_message.json["from"]["id"]) == int(bot_id):
+      rnd_count = random.randrange(0, 5, 1)
+      if (message_text == "хуй в уста") and rnd_count == 0:
+        Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"астры ответ"}).start()
+      return True
+
+  if message_text.find("астры") >= 0:
+    rnd_count = random.randrange(0, 5, 1)
+    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястры"}).start()
+    return True
+  if message_text.find("астру") >= 0:
+    rnd_count = random.randrange(0, 5, 1)
+    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястру"}).start()
+    return True
+  if message_text.find("астрой") >= 0:
+    rnd_count = random.randrange(0, 5, 1)
+    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястрой"}).start()
+    return True
+
+  if message_text.find("пидора ответ") >= 0:
+    rnd_count = random.randrange(0, 3, 1)
+    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"шлюхи аргумент"}).start()
+    return True
+
+
+  rnd_count = random.randrange(0, 3, 1)
+  if (message_text == "да") and rnd_count == 0:
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"пизда"}).start()
     return True
-  if (message.text == "пизда" or message.text == "Пизда") and rnd_count == 0:
+  if (message_text == "пизда") and rnd_count == 0:
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуй в уста"}).start()
     return True
-  if (message.text == "нет" or message.text == "Нет") and rnd_count == 0:
-    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"Астры ответ"}).start()
+  if (message_text == "нет") and rnd_count == 0:
+    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"пидора ответ"}).start()
     return True
   rnd_count = random.randrange(0, 10, 1)
-  if (message.text == "астра" or message.text == "Астра") and rnd_count == 0:
+  if (message_text == "астра") and rnd_count == 0:
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястра!"}).start()
     return True
   return False
@@ -352,6 +411,7 @@ def delete_bots_messages(message):
       queued_message_for_delete(message)
       return True
   return False
+
 
 def find_reply_to_queued(message):
   if message.reply_to_message is not None:
@@ -367,7 +427,7 @@ def find_reply_to_queued(message):
 
 @bot.message_handler()
 def all_messages(message):
-  #print(message)
+  print(message)
 
   if delete_bots_messages(message): return
   find_reply_to_queued(message)

@@ -40,7 +40,7 @@ with open('./database/koteeq.json') as file:
 db = SqliteDatabase(args.db)
 
 time_delete = 60*10
-msg_random = 100
+msg_random = 200
 
 
 def is_member(chat_id, user_id):
@@ -370,15 +370,15 @@ def random_cunt_message(message):
       return True
 
   if message_text.find("астры") >= 0:
-    rnd_count = random.randrange(0, 5, 1)
+    rnd_count = random.randrange(0, 10, 1)
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястры"}).start()
     return True
   if message_text.find("астру") >= 0:
-    rnd_count = random.randrange(0, 5, 1)
+    rnd_count = random.randrange(0, 10, 1)
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястру"}).start()
     return True
   if message_text.find("астрой") >= 0:
-    rnd_count = random.randrange(0, 5, 1)
+    rnd_count = random.randrange(0, 10, 1)
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястрой"}).start()
     return True
 
@@ -398,7 +398,7 @@ def random_cunt_message(message):
   if (message_text == "нет") and rnd_count == 0:
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"пидора ответ"}).start()
     return True
-  rnd_count = random.randrange(0, 10, 1)
+  rnd_count = random.randrange(0, 20, 1)
   if (message_text == "астра") and rnd_count == 0:
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястра!"}).start()
     return True

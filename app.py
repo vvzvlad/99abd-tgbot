@@ -387,6 +387,15 @@ def random_cunt_message(message):
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"шлюхи аргумент"}).start()
     return True
 
+  if message_text.find("uwu") >= 0:
+    rnd_count = random.randrange(0, 5, 1)
+    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"Подавился?"}).start()
+    return True
+  if message_text.find("уву") >= 0:
+    rnd_count = random.randrange(0, 5, 1)
+    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"Подавился?"}).start()
+    return True
+
 
   rnd_count = random.randrange(0, 3, 1)
   if (message_text == "да") and rnd_count == 0:

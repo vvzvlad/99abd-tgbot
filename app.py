@@ -40,8 +40,12 @@ with open('./database/koteeq.json') as file:
 db = SqliteDatabase(args.db)
 
 time_delete = 60*10
-msg_random = 200
+msg_random = 1
 
+def probability(percent):
+  if random.randint(0,100) < percent:
+    return True
+  return False
 
 def is_member(chat_id, user_id):
     try:
@@ -135,6 +139,7 @@ def schedule_worker():
   schedule.every().day.at("16:12").do(cmd_day_furr, message)
   schedule.every().day.at("19:59").do(cmd_day_couple, message)
   schedule.every().day.at("22:02").do(cmd_day_pretty, message)
+  schedule.every().day.at("01:02").do(cmd_day_protogen, message)
 
   schedule.every().monday.at("12:10").do(cmd_99_rotation, message)
   schedule.every().tuesday.at("16:42").do(cmd_99_rotation, message)
@@ -168,22 +173,6 @@ def set_delete_delay_cmd(message):
     queued_message_for_delete(message)
     queued_message_for_delete(msg)
 
-@bot.message_handler(commands=['set_random'])
-def set_ramdom_cmd(message):
-  global msg_random
-  admins_table = Abd.select().where(Abd.is_admin == True).order_by(Abd.messages_count, Abd.last_message_date).dicts().execute()
-  admins_dict = [d['username'] for d in admins_table]
-  if message.from_user.username not in admins_dict:
-      msg = bot.reply_to(message, f"Ты не админ")
-      queued_message_for_delete(message)
-      queued_message_for_delete(msg)
-      return
-  else:
-    msg_random = int(extract_arg(message.text)[0])
-    msg = bot.reply_to(message, f"Рандомные сообщений будут показываться каждый {msg_random} сообщений")
-    queued_message_for_delete(message)
-    queued_message_for_delete(msg)
-
 
 @bot.message_handler(commands=["dg", "dg@ninety_nine_abominable_bot"])
 def cmd_day_gay(message):
@@ -191,8 +180,8 @@ def cmd_day_gay(message):
   epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
   random.seed(epoch_date+1)
   users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
-  day_gay = random.choice(users)["username"]
-  msg = bot.send_message(message.chat.id, f"🎉 Сегодня ГЕЙ 🌈 дня (и вечера) (/dg) - @{day_gay}")
+  user = random.choice(users)["username"]
+  msg = bot.send_message(message.chat.id, f"🎉 Сегодня ГЕЙ 🌈 дня (и вечера) (/dg) - @{user}")
   if (hasattr(message, "scheduled")) is False:
     queued_message_for_delete(message)
     queued_message_for_delete(msg)
@@ -205,8 +194,8 @@ def cmd_day_faggot(message):
   epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
   random.seed(epoch_date+2)
   users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
-  day_farrot = random.choice(users)["username"]
-  msg = bot.send_message(message.chat.id, f"Сегодня ПИДОР 🎉 дня (и вечера) (/df) - @{day_farrot}")
+  user = random.choice(users)["username"]
+  msg = bot.send_message(message.chat.id, f"Сегодня ПИДОР 🎉 дня (и вечера) (/df) - @{user}")
   if (hasattr(message, "scheduled")) is False:
     queued_message_for_delete(message)
     queued_message_for_delete(msg)
@@ -219,8 +208,8 @@ def cmd_day_furr(message):
   epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
   random.seed(epoch_date+3)
   users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
-  day_furri = random.choice(users)["username"]
-  msg = bot.send_message(message.chat.id, f"Сегодня 🦄 ФУРРИ 🐶  дня (и вечера) (/dfur) - 🐰 @{day_furri} 🐳")
+  user = random.choice(users)["username"]
+  msg = bot.send_message(message.chat.id, f"Сегодня 🦄 ФУРРИ 🐶  дня (и вечера) (/dfur) - 🐰 @{user} 🐳")
   if (hasattr(message, "scheduled")) is False:
     queued_message_for_delete(message)
     queued_message_for_delete(msg)
@@ -256,11 +245,25 @@ def cmd_day_pretty(message):
   random.seed()
   return
 
+@bot.message_handler(commands=["dproto", "dproto@ninety_nine_abominable_bot"])
+def cmd_day_protogen(message):
+  date_string = datetime.datetime.today().strftime('%d/%m/%Y')
+  epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
+  random.seed(epoch_date+6)
+  users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
+  user = random.choice(users)["username"]
+  msg = bot.send_message(message.chat.id, f"🤖 Сегодня ПРОТОГЕН 🤖 дня (и вечера) (/dз) - @{user}")
+  if (hasattr(message, "scheduled")) is False:
+    queued_message_for_delete(message)
+    queued_message_for_delete(msg)
+  random.seed()
+  return
 
 @bot.message_handler(commands=["help", "help@ninety_nine_abominable_bot"])
 def cmd_help(message):
   msg = bot.send_message(message.chat.id, f"""🎉 Список команд 🎉
   1. /df - ПЕДИК дня
+  1. /dproto - ПРОТОГЕН дня
   5. /dfur - ФУРРИ дня
   5. /dg - ГЕЙ дня
   6. /dc - ПАРА дня
@@ -283,13 +286,13 @@ def cmd_99_rotation(message):
   admins_dict = [d['username'] for d in admins_table]
   if message.from_user.username not in admins_dict:
     #msg = bot.reply_to(message, f"Нахуй иди")
-    msg = bot.send_message(message.chat.id, f"@{message.from_user.username} получил это письмо, потому что команда 👨‍🏫 биг дата 👩‍🏫 проанализровала его активности в телеграме и пометила его как невовлеченного 🙈 и малопродуктивного 🙉 шитпостера 🙊, который пытается отправлять команды админов. Удаление 🚮 произойдет через 10 минут ⏱. Повторная заявка на вступление будет рассмотрена в общем порядке. Еще раз спасибо за вклад (нет). Приятного дня (нет 🤷). С уважением (нет 🤷‍♂️), команда биг дата (нет 🤷‍♀️).")
+    msg = bot.send_message(message.chat.id, f"@{message.from_user.username} не боится отправлять команды админов, поэтому его удаление с вероятностью 10% произойдет через час. Приятного дня! Удачной русской рулетки!")
     if (hasattr(message, "scheduled")) is False:
       queued_message_for_delete(message)
       queued_message_for_delete(msg)
     return
 
-  if random.randrange(0, 7, 1) == 0:
+  if probability(20):
     msg = bot.reply_to(message, f"Да вы заебали, суууука")
     return
 
@@ -308,10 +311,13 @@ def cmd_99_rotation(message):
 
 @bot.message_handler(commands=["random", "random@ninety_nine_abominable_bot"])
 def cmd_random(message):
-  #size = int(extract_arg(message.text)[0])
-  msg = bot.reply_to(message, model_combo.make_sentence())
-  queued_message_for_delete(message, time=2)
-  queued_message_for_delete(msg)
+  queued_message_for_delete(message, time=0.5)
+  if message.reply_to_message is not None:
+    msg = bot.send_message(message.chat.id, model_combo.make_sentence(), reply_to_message_id=message.reply_to_message.json["message_id"])
+    #model_koteeq.make_sentence_with_start(message.reply_to_message.text)
+  else:
+    msg = bot.reply_to(message, model_combo.make_sentence())
+    queued_message_for_delete(msg)
 
 @bot.message_handler(commands=["astrandom", "astra", "astrarandom"])
 def cmd_astra_random(message):
@@ -347,8 +353,7 @@ def counter_update(message):
     Abd.create(username=username, user_id=message.from_user.id, join_date=datetime.datetime.today(), last_message_date=datetime.datetime.today(), is_admin=False, messages_count=1, group_id=message.chat.id)
 
 def random_message(message):
-  rnd_count = random.randrange(0, msg_random, 1)
-  if message.text[0] != "/" and rnd_count == 0:
+  if message.text[0] != "/" and probability(msg_random):
     rnd_count = random.randrange(0, 100, 1)
     if rnd_count < 50:
       gen_message = model_combo.make_sentence()
@@ -364,51 +369,38 @@ def random_cunt_message(message):
   message_text = message.text.lower()
   if message.reply_to_message is not None:
     if int(message.reply_to_message.json["from"]["id"]) == int(bot_id):
-      rnd_count = random.randrange(0, 5, 1)
-      if (message_text == "хуй в уста") and rnd_count == 0:
+      if (message_text == "хуй в уста") and probability(20):
         Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"астры ответ"}).start()
       return True
 
-  if message_text.find("астры") >= 0:
-    rnd_count = random.randrange(0, 10, 1)
-    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястры"}).start()
+  if message_text.find("астры") >= 0 and probability(10):
+    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястры!"}).start()
     return True
-  if message_text.find("астру") >= 0:
-    rnd_count = random.randrange(0, 10, 1)
-    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястру"}).start()
+  if message_text.find("астру") >= 0 and probability(10):
+    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястру!"}).start()
     return True
-  if message_text.find("астрой") >= 0:
-    rnd_count = random.randrange(0, 10, 1)
-    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястрой"}).start()
+  if message_text.find("астрой") >= 0 and probability(10):
+    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястрой!"}).start()
     return True
 
-  if message_text.find("пидора ответ") >= 0:
-    rnd_count = random.randrange(0, 3, 1)
+  if message_text.find("пидора ответ") >= 0 and probability(50):
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"шлюхи аргумент"}).start()
     return True
 
-  if message_text.find("uwu") >= 0:
-    rnd_count = random.randrange(0, 5, 1)
-    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"Подавился?"}).start()
-    return True
-  if message_text.find("уву") >= 0:
-    rnd_count = random.randrange(0, 5, 1)
+  if message_text.find("uwu") >= 0 or  message_text.find("уву") >= 0 and probability(20):
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"Подавился?"}).start()
     return True
 
-
-  rnd_count = random.randrange(0, 3, 1)
-  if (message_text == "да") and rnd_count == 0:
+  if (message_text == "да") and probability(10):
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"пизда"}).start()
     return True
-  if (message_text == "пизда") and rnd_count == 0:
+  if (message_text == "пизда") and probability(10):
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуй в уста"}).start()
     return True
-  if (message_text == "нет") and rnd_count == 0:
+  if (message_text == "нет") and probability(10):
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"пидора ответ"}).start()
     return True
-  rnd_count = random.randrange(0, 20, 1)
-  if (message_text == "астра") and rnd_count == 0:
+  if (message_text == "астра") and probability(5):
     Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястра!"}).start()
     return True
   return False

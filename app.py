@@ -384,7 +384,7 @@ def random_cunt_message(message):
         return publish_message(message, "аргумент не нужен, бот не обнаружен")
       return True
 
-  if message_text.find("астра") and probability(5):
+  if message_text.find("астра") >= 0 and probability(5):
     return publish_message(message, "хуястра!")
   if message_text.find("астры") >= 0 and probability(10):
     return publish_message(message, "хуястры!")

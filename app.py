@@ -44,7 +44,7 @@ with open('./database/koteeq.json') as file:
 db = SqliteDatabase(args.db)
 
 time_delete = 60*10
-msg_random = 10
+msg_random = 5
 
 def probability(percent):
   if random.randint(0,100) < percent:

@@ -13,6 +13,10 @@ import schedule
 from munch import Munch
 import argparse
 
+#coffee camera
+from requests.auth import HTTPDigestAuth
+import requests
+from telebot.types import InputFile
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--db', type=str, default="./database/99-abd.db")
@@ -46,6 +50,10 @@ def probability(percent):
   if random.randint(0,100) < percent:
     return True
   return False
+
+def publish_message(reply_to_message, message):
+  Thread(target=wait_and_reply,kwargs={'reply_to_message':reply_to_message, 'message':message}).start()
+  return True
 
 def is_member(chat_id, user_id):
     try:
@@ -369,40 +377,36 @@ def random_cunt_message(message):
   message_text = message.text.lower()
   if message.reply_to_message is not None:
     if int(message.reply_to_message.json["from"]["id"]) == int(bot_id):
-      if (message_text == "хуй в уста") and probability(20):
-        Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"астры ответ"}).start()
+      if (message_text == "хуй в уста") and probability(100):
+        return publish_message(message, "астры ответ")
+      if (message_text == "бота аргумент") and probability(100):
+        return publish_message(message, "аргумент не нужен, бот не обнаружен")
       return True
 
+  if message_text.find("астра") and probability(5):
+    return publish_message(message, "хуястра!")
   if message_text.find("астры") >= 0 and probability(10):
-    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястры!"}).start()
-    return True
+    return publish_message(message, "хуястры!")
   if message_text.find("астру") >= 0 and probability(10):
-    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястру!"}).start()
-    return True
+    return publish_message(message, "хуястру!")
   if message_text.find("астрой") >= 0 and probability(10):
-    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястрой!"}).start()
-    return True
+    return publish_message(message, "хуястрой!")
 
   if message_text.find("пидора ответ") >= 0 and probability(50):
-    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"шлюхи аргумент"}).start()
-    return True
+    return publish_message(message, "шлюхи аргумент")
 
-  if message_text.find("uwu") >= 0 or  message_text.find("уву") >= 0 and probability(20):
-    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"Подавился?"}).start()
-    return True
+  if (message_text.find("uwu") >= 0 or message_text.find("уву") >= 0) and probability(20):
+    return publish_message(message, "Подавился?")
+  if message_text.find("где?") >= 0 and probability(20):
+    return publish_message(message, "В пизде")
 
   if (message_text == "да") and probability(10):
-    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"пизда"}).start()
-    return True
+    return publish_message(message, "пизда")
   if (message_text == "пизда") and probability(10):
-    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуй в уста"}).start()
-    return True
+    return publish_message(message, "хуй в уста")
   if (message_text == "нет") and probability(10):
-    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"пидора ответ"}).start()
-    return True
-  if (message_text == "астра") and probability(5):
-    Thread(target=wait_and_reply,kwargs={'reply_to_message':message, 'message':"хуястра!"}).start()
-    return True
+    return publish_message(message, "пидора ответ")
+
   return False
 
 def delete_bots_messages(message):

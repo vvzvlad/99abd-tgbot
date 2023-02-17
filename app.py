@@ -44,7 +44,7 @@ with open('./database/koteeq.json') as file:
 db = SqliteDatabase(args.db)
 
 time_delete = 60*10
-msg_random = 5
+msg_random = 15
 
 def probability(percent):
   if random.randint(0,100) < percent:
@@ -362,15 +362,13 @@ def counter_update(message):
 
 def random_message(message):
   if message.text[0] != "/" and probability(msg_random):
-    #rnd_count = random.randrange(0, 100, 1)
-    #if rnd_count < 50:
-    #  gen_message = model_combo.make_sentence()
-    #if rnd_count >= 50 and rnd_count < 75:
-    #  gen_message = 'Астра на это бы сказала "' + model_astra.make_sentence() + '"'
-    #if rnd_count >= 75:
-    #  gen_message = 'Аня на это бы сказала "' + model_koteeq.make_sentence() + '"'
-
-    gen_message = model_astra.make_sentence()
+    rnd_count = random.randrange(0, 100, 1)
+    if rnd_count < 50:
+      gen_message = model_combo.make_sentence()
+    if rnd_count >= 50 and rnd_count < 75:
+      gen_message = 'Астра на это бы сказала "' + model_astra.make_sentence() + '"'
+    if rnd_count >= 75:
+      gen_message = 'Аня на это бы сказала "' + model_koteeq.make_sentence() + '"'
 
     publish_message(message, gen_message)
 

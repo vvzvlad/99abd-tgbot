@@ -292,6 +292,7 @@ def get_coffee_photo(message):
   if message.from_user.username != "mur_chizh" and message.from_user.username != "mellanchollly":
     msg = bot.reply_to(message, f"Тебе нельзя, только Эн. и Нэ. могут запрашивать фото")
     queued_message_for_delete(msg)
+    return
 
   try:
     resp = requests.get("http://192.168.77.251/images/snapshot.jpg", auth=HTTPDigestAuth('admin', 'Uncork4-Navy-Contempt'))

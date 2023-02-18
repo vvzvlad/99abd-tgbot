@@ -288,6 +288,11 @@ def cmd_help(message):
 
 @bot.message_handler(commands=["coffee", "coffee@ninety_nine_abominable_bot"])
 def get_coffee_photo(message):
+  queued_message_for_delete(message)
+  if message.from_user.username != "mur_chizh" and message.from_user.username != "mellanchollly":
+    msg = bot.reply_to(message, f"Тебе нельзя, только Эн. и Нэ. могут запрашивать фото")
+    queued_message_for_delete(msg)
+
   try:
     resp = requests.get("http://192.168.77.251/images/snapshot.jpg", auth=HTTPDigestAuth('admin', 'Uncork4-Navy-Contempt'))
     if resp.status_code == 200:
@@ -296,9 +301,11 @@ def get_coffee_photo(message):
       img = open("/tmp/camera.jpg", 'rb')
       msg = bot.send_photo(message.chat.id, img)
       img.close()
+      queued_message_for_delete(msg)
   except Exception as e:
     print(f'Error: {e}')
-    bot.send_message(message.chat.id, e)
+    msg = bot.send_message(message.chat.id, e)
+    queued_message_for_delete(msg)
 
 @bot.message_handler(commands=["99_rotation", "99_rotation@ninety_nine_abominable_bot"])
 def cmd_99_rotation(message):

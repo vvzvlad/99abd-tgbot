@@ -419,6 +419,8 @@ def random_cunt_message(message):
     return publish_message(message, "Подавился?")
   if message_text.find("где?") >= 0 and probability(20):
     return publish_message(message, "В пизде")
+  if message_text.find("!начать") >= 0 and probability(20):
+    return publish_message(message, "Ты еблан бля")
 
   if (message_text == "да") and probability(10):
     return publish_message(message, "пизда")

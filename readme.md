@@ -24,5 +24,5 @@ python app.py
 ## (All-In-One) Launch via Docker
 
 ```sh
-python3 docker.py
+python3 tinydocker.py
 ```

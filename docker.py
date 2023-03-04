@@ -39,15 +39,6 @@ def handler(signum, frame):
         cmdw(f"docker logs --follow {container}")
 
 
-def cmdw(cmd):
-    """A simple cmd wrapper."""
-    print(f"[CMD] {cmd}")
-    rc = subprocess.run(cmd, shell=True).returncode
-    if rc != 0:
-        print(f"[ERR] Could not launch: {cmd}")
-        sys.exit(1)
-
-
 # launch
 signal.signal(signal.SIGINT, handler)
 global image, container

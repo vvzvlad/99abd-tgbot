@@ -21,8 +21,8 @@ source .venv/bin/activate
 python app.py
 ```
 
-## (All-In-One) Launch via Docker Compose
+## (All-In-One) Launch via Docker
 
 ```sh
-docker compose up --build
+python3 docker.py
 ```

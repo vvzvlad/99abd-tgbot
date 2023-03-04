@@ -1,0 +1,8 @@
+version: "3"
+
+services:
+  bot:
+    build:
+      context: "."
+    image: 99abd-tgbot
+    container_name: fluffy_bs

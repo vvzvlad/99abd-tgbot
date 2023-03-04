@@ -13,37 +13,32 @@ import markovify
 from peewee import *
 from munch import Munch
 from threading import Thread
-
 # coffee cumera
 import requests
 from telebot.types import InputFile
 from requests.auth import HTTPDigestAuth
 
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--db', type=str, default="./database/99-abd.db")
 args = parser.parse_args()
-
 print("Load markovify models..")
 with open('./database/model_combo.json') as file:
     model_json = file.read()
     print("Model combo loaded. Importing..")
     model_combo = markovify.Text.from_json(model_json)
     print("Loaded and imported.")
-
 with open('./database/astra.json') as file:
     model_json = file.read()
     print("Model astra loaded. Importing..")
     model_astra = markovify.Text.from_json(model_json)
     print("Loaded and imported.")
-
 with open('./database/koteeq.json') as file:
     model_json = file.read()
     print("Model koteeq loaded. Importing..")
     model_koteeq = markovify.Text.from_json(model_json)
     print("Loaded and imported.")
-
 db = SqliteDatabase(args.db)
-
 time_delete = 60*10
 msg_random = 1
 
@@ -184,7 +179,7 @@ def queued_message_for_delete(message, time=time_delete):
                       message.via_bot.username,
                       time))
     else:
-        print("Queued: id {}: '{}' from {} in {}"\.
+        print("Queued: id {}: '{}' from {} in {}"\
               .format(message.message_id,
                       message.text,
                       message.from_user.username,
@@ -201,7 +196,7 @@ def set_delete_delay_cmd(message):
     admins_table = Abd.select().where(Abd.is_admin == True).order_by(Abd.messages_count, Abd.last_message_date).dicts().execute()
     admins_dict = [d['username'] for d in admins_table]
     if message.from_user.username not in admins_dict:
-        msg = bot.reply_to(message, f"Ты не админ")
+        msg = bot.reply_to(message, "Ты не админ")
         queued_message_for_delete(message)
         queued_message_for_delete(msg)
         return
@@ -212,14 +207,77 @@ def set_delete_delay_cmd(message):
         queued_message_for_delete(msg)
 
 
-@bot.message_handler(commands=["dg", "dg@ninety_nine_abominable_bot"])
-def cmd_day_gay(message):
+def cmd_day_template(tag, users):
+    # link tag to its epoch addition
+    tags = {
+        "dg": {
+            "num": 1,
+            "emoji_1": "🎉",
+            "emoji_2": "🌈",
+            "title": "ГЕЙ"
+        },
+        "df": {
+            "num": 2,
+            "emoji_1": "😳",
+            "emoji_2": "🎉",
+            "title": "ПИДОР"
+        },
+        "dfur": {
+            "num": 3,
+            "emoji_1": "🦄",
+            "emoji_2": "🐶",
+            "title": "ФУРРИ"
+        },
+        "dc": {
+            "num": 4,
+            "emoji_1": "😳",
+            "emoji_2": "🎉",
+            "title": "ПАРА"
+        },
+        "dp": {
+            "num": 5,
+            "emoji_1": "🎉",
+            "emoji_2": "😊",
+            "title": "КРАСАВЧИК"
+        },
+        "dproto": {
+            "num": 6,
+            "emoji_1": "🤖",
+            "emoji_2": "🤖",
+            "title": "ПРОТОГЕН"
+        },
+        "de": {
+            "num": 7,
+            "emoji_1": "🤪",
+            "emoji_2": "😂👍",
+            "title": "ЕБЛАН"
+        }
+    }
+    if tag not in tags:
+        print("Unsupported tag.")
+        return 1
+    # insert into template
     date_string = datetime.datetime.today().strftime('%d/%m/%Y')
     epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
-    random.seed(epoch_date+1)
-    users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
+    random.seed(epoch_date + tags[tag]["num"])
     user = random.choice(users)["username"]
-    msg = bot.send_message(message.chat.id, f"🎉 Сегодня ГЕЙ 🌈 дня (и вечера) (/dg) - @{user}")
+    msgtxt = "{} Сегодня {} {} дня (и вечера) (/{}) - @{}"\
+             .format(tags[tag]["emoji_1"],
+                     tags[tag]["title"],
+                     tags[tag]["emoji_2"],
+                     tag,
+                     user)
+    # an exceptional case for couple
+    if tag == "dc":
+        user2 = random.choice(users)["username"]
+        msgtxt += f" и @{user2} 💕 🐕 ЕБИТЕС 🐕"
+    return msgtxt
+
+
+@bot.message_handler(commands=["dg", "dg@ninety_nine_abominable_bot"])
+def cmd_day_gay(message):
+    msgtxt = cmd_day_template("dg")
+    msg = bot.send_message(message.chat.id, msgtxt)
     if (hasattr(message, "scheduled")) is False:
         queued_message_for_delete(message)
         queued_message_for_delete(msg)
@@ -229,13 +287,9 @@ def cmd_day_gay(message):
 
 @bot.message_handler(commands=["df", "df@ninety_nine_abominable_bot"])
 def cmd_day_faggot(message):
-    date_string = datetime.datetime.today().strftime('%d/%m/%Y')
-    epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
-    random.seed(epoch_date+2)
     users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
-    user = random.choice(users)["username"]
-    msg = bot.send_message(message.chat.id,
-                           f"Сегодня ПИДОР 🎉 дня (и вечера) (/df) - @{user}")
+    msgtxt = cmd_day_template("df", users)
+    msg = bot.send_message(message.chat.id, msgtxt)
     if (hasattr(message, "scheduled")) is False:
         queued_message_for_delete(message)
         queued_message_for_delete(msg)
@@ -245,13 +299,8 @@ def cmd_day_faggot(message):
 
 @bot.message_handler(commands=["dfur", "dfur@ninety_nine_abominable_bot"])
 def cmd_day_furr(message):
-    date_string = datetime.datetime.today().strftime('%d/%m/%Y')
-    epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
-    random.seed(epoch_date+3)
-    users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
-    user = random.choice(users)["username"]
-    msg = bot.send_message(message.chat.id,
-                           f"Сегодня 🦄 ФУРРИ 🐶  дня (и вечера) (/dfur) - 🐰 @{user} 🐳")
+    msgtxt = cmd_day_template("dfur", users)
+    msg = bot.send_message(message.chat.id, msgtxt)
     if (hasattr(message, "scheduled")) is False:
         queued_message_for_delete(message)
         queued_message_for_delete(msg)
@@ -261,14 +310,9 @@ def cmd_day_furr(message):
 
 @bot.message_handler(commands=["dc", "dc@ninety_nine_abominable_bot"])
 def cmd_day_couple(message):
-    date_string = datetime.datetime.today().strftime('%d/%m/%Y')
-    epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
-    random.seed(epoch_date+4)
     users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
-    p1 = random.choice(users)["username"]
-    p2 = random.choice(users)["username"]
-    msg = bot.send_message(message.chat.id,
-                           f"🎉 Сегодня ПАРА 😳 дня (/dc) - @{p1} и @{p2} 💕 🐕 ЕБИТЕС 🐕")
+    msgtxt = cmd_day_template("dc", users)
+    msg = bot.send_message(message.chat.id, msgtxt)
     if (hasattr(message, "scheduled")) is False:
         queued_message_for_delete(message)
         queued_message_for_delete(msg)
@@ -278,13 +322,9 @@ def cmd_day_couple(message):
 
 @bot.message_handler(commands=["dp", "dp@ninety_nine_abominable_bot"])
 def cmd_day_pretty(message):
-    date_string = datetime.datetime.today().strftime('%d/%m/%Y')
-    epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
-    random.seed(epoch_date+5)
     users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
-    pretty = random.choice(users)["username"]
-    msg = bot.send_message(message.chat.id,
-                           f"🎉 Сегодня КРАСАВЧИК 😊 дня (/dp) - @{pretty}")
+    msgtxt = cmd_day_template("dp", users)
+    msg = bot.send_message(message.chat.id, msgtxt)
     if (hasattr(message, "scheduled")) is False:
         queued_message_for_delete(message)
         queued_message_for_delete(msg)
@@ -294,12 +334,10 @@ def cmd_day_pretty(message):
 
 @bot.message_handler(commands=["dproto", "dproto@ninety_nine_abominable_bot"])
 def cmd_day_protogen(message):
-    date_string = datetime.datetime.today().strftime('%d/%m/%Y')
-    epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
-    random.seed(epoch_date+6)
     users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
-    user = random.choice(users)["username"]
-    msg = bot.send_message(message.chat.id, f"🤖 Сегодня ПРОТОГЕН 🤖 дня (и вечера) (/dproto) - @{user}")
+
+    msgtxt = cmd_day_template("dproto", users)
+    msg = bot.send_message(message.chat.id, msgtxt)
     if (hasattr(message, "scheduled")) is False:
         queued_message_for_delete(message)
         queued_message_for_delete(msg)
@@ -309,12 +347,9 @@ def cmd_day_protogen(message):
 
 @bot.message_handler(commands=["de", "de@ninety_nine_abominable_bot"])
 def cmd_day_eblan(message):
-    date_string = datetime.datetime.today().strftime('%d/%m/%Y')
-    epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
-    random.seed(epoch_date+7)
     users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
-    user = random.choice(users)["username"]
-    msg = bot.send_message(message.chat.id, f"🤪 Сегодня ЕБЛАН 😂👍 дня (и вечера) (/de) - @{user}")
+    msgtxt = cmd_day_template("de", users)
+    msg = bot.send_message(message.chat.id, msgtxt)
     if (hasattr(message, "scheduled")) is False:
         queued_message_for_delete(message)
         queued_message_for_delete(msg)
@@ -325,24 +360,23 @@ def cmd_day_eblan(message):
 @bot.message_handler(commands=["help", "help@ninety_nine_abominable_bot"])
 def cmd_help(message):
     msg = bot.send_message(message.chat.id, f"""🎉 Список команд 🎉
-    1. /df - ПЕДИК дня
-    1. /dproto - ПРОТОГЕН дня
-    5. /dfur - ФУРРИ дня
-    5. /dg - ГЕЙ дня
-    6. /dc - ПАРА дня
-    7. /dp - КРАСАВЧИК дня
-    8. /de - ЕБЛАН дня
-    9. /random — сообщение комбинированной модели
-    10. /astrandom — сообщение астрологической модели
-    11. /koterand — сообщение модели кота
+    1.  /dg - ГЕЙ дня
+    2.  /df - ПЕДИК дня
+    3.  /dfur - ФУРРИ дня
+    4.  /dc - ПАРА дня
+    5.  /dp - КРАСАВЧИК дня
+    6.  /dproto - ПРОТОГЕН дня
+    7.  /de - ЕБЛАН дня
+    8.  /random — сообщение комбинированной модели
+    9.  /astrandom — сообщение астрологической модели
+    10. /koterand — сообщение модели кота
     """)
     queued_message_for_delete(message)
     queued_message_for_delete(msg)
     return
 
 
-@bot.message_handler(commands=["coffee",
-                               "coffee@ninety_nine_abominable_bot"])
+@bot.message_handler(commands=["coffee", "coffee@ninety_nine_abominable_bot"])
 def get_coffee_photo(message):
     queued_message_for_delete(message)
     if message.from_user.username not in ["mur_chizh", "mellanchollly"]:
@@ -366,8 +400,7 @@ def get_coffee_photo(message):
         queued_message_for_delete(msg)
 
 
-@bot.message_handler(commands=["99_rotation",
-                               "99_rotation@ninety_nine_abominable_bot"])
+@bot.message_handler(commands=["99_rotation", "99_rotation@ninety_nine_abominable_bot"])
 def cmd_99_rotation(message):
     admins_table = Abd.select().where(Abd.is_admin == True).order_by(Abd.messages_count, Abd.last_message_date).dicts().execute()
     admins_dict = [d['username'] for d in admins_table]
@@ -407,8 +440,7 @@ def cmd_99_rotation(message):
                                               'username': user_for_delete}).start()
 
 
-@bot.message_handler(commands=["random",
-                               "random@ninety_nine_abominable_bot"])
+@bot.message_handler(commands=["random", "random@ninety_nine_abominable_bot"])
 def cmd_random(message):
     queued_message_for_delete(message, time=0.5)
     if message.reply_to_message is not None:
@@ -420,9 +452,7 @@ def cmd_random(message):
         queued_message_for_delete(msg)
 
 
-@bot.message_handler(commands=["astrandom",
-                               "astra",
-                               "astrarandom"])
+@bot.message_handler(commands=["astrandom", "astra", "astrarandom"])
 def cmd_astra_random(message):
     queued_message_for_delete(message, time=0.5)
     if message.reply_to_message is not None:
@@ -434,10 +464,7 @@ def cmd_astra_random(message):
         queued_message_for_delete(msg)
 
 
-@bot.message_handler(commands=["koterand",
-                               "koterandom",
-                               "koteeq",
-                               "koteeqrandom"])
+@bot.message_handler(commands=["koterand", "koterandom", "koteeq", "koteeqrandom"])
 def cmd_koteeq_random(message):
     queued_message_for_delete(message, time=0.5)
     if message.reply_to_message is not None:

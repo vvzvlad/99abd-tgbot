@@ -14,7 +14,7 @@ from peewee import *
 from munch import Munch
 from threading import Thread
 
-# coffee camera
+# coffee cumera
 import requests
 from telebot.types import InputFile
 from requests.auth import HTTPDigestAuth
@@ -158,6 +158,8 @@ def schedule_worker():
     message = Munch.fromDict({"chat": {"id": chat_id},
                               "scheduled": True,
                               "from_user": {"username": "vvzvlad"}})
+    schedule.every().day.at("01:02").do(cmd_day_protogen, message)
+    schedule.every().day.at("07:32").do(cmd_day_eblan, message)
     schedule.every().day.at("10:32").do(cmd_day_gay, message)
     schedule.every().day.at("13:48").do(cmd_day_faggot, message)
     schedule.every().day.at("16:12").do(cmd_day_furr, message)
@@ -175,11 +177,22 @@ def queued_message_for_delete(message, time=time_delete):
     if (hasattr(message, "scheduled")) is True:
         return
     if message.via_bot is not None:
-        print(f"Queued: id {message.message_id}: '{message.text}' from {message.from_user.username} via bot {message.via_bot.username} in {time}")
+        print("Queued: id {}: '{}' from {} via bot {} in {}"\
+              .format(message.message_id,
+                      message.text,
+                      message.from_user.username,
+                      message.via_bot.username,
+                      time))
     else:
-        print(f"Queued: id {message.message_id}: '{message.text}' from {message.from_user.username} in {time}")
+        print("Queued: id {}: '{}' from {} in {}"\.
+              .format(message.message_id,
+                      message.text,
+                      message.from_user.username,
+                      time))
     livetime = datetime.datetime.now() + datetime.timedelta(seconds=time)
-    Query.create(message_id=message.message_id, chat_id=message.chat.id, abs_time_live=livetime)
+    Query.create(message_id=message.message_id,
+                 chat_id=message.chat.id,
+                 abs_time_live=livetime)
 
 
 @bot.message_handler(commands=['set_delete_delay'])
@@ -286,7 +299,22 @@ def cmd_day_protogen(message):
     random.seed(epoch_date+6)
     users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
     user = random.choice(users)["username"]
-    msg = bot.send_message(message.chat.id, f"🤖 Сегодня ПРОТОГЕН 🤖 дня (и вечера) (/dз) - @{user}")
+    msg = bot.send_message(message.chat.id, f"🤖 Сегодня ПРОТОГЕН 🤖 дня (и вечера) (/dproto) - @{user}")
+    if (hasattr(message, "scheduled")) is False:
+        queued_message_for_delete(message)
+        queued_message_for_delete(msg)
+    random.seed()
+    return
+
+
+@bot.message_handler(commands=["de", "de@ninety_nine_abominable_bot"])
+def cmd_day_eblan(message):
+    date_string = datetime.datetime.today().strftime('%d/%m/%Y')
+    epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
+    random.seed(epoch_date+7)
+    users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
+    user = random.choice(users)["username"]
+    msg = bot.send_message(message.chat.id, f"🤪 Сегодня ЕБЛАН 😂👍 дня (и вечера) (/de) - @{user}")
     if (hasattr(message, "scheduled")) is False:
         queued_message_for_delete(message)
         queued_message_for_delete(msg)
@@ -303,16 +331,18 @@ def cmd_help(message):
     5. /dg - ГЕЙ дня
     6. /dc - ПАРА дня
     7. /dp - КРАСАВЧИК дня
-    8. /random — сообщение комбинированной модели
-    8. /astrandom — сообщение астрологической модели
-    8. /koterand — сообщение модели кота
+    8. /de - ЕБЛАН дня
+    9. /random — сообщение комбинированной модели
+    10. /astrandom — сообщение астрологической модели
+    11. /koterand — сообщение модели кота
     """)
     queued_message_for_delete(message)
     queued_message_for_delete(msg)
     return
 
 
-@bot.message_handler(commands=["coffee", "coffee@ninety_nine_abominable_bot"])
+@bot.message_handler(commands=["coffee",
+                               "coffee@ninety_nine_abominable_bot"])
 def get_coffee_photo(message):
     queued_message_for_delete(message)
     if message.from_user.username not in ["mur_chizh", "mellanchollly"]:
@@ -343,7 +373,11 @@ def cmd_99_rotation(message):
     admins_dict = [d['username'] for d in admins_table]
     if message.from_user.username not in admins_dict:
         #msg = bot.reply_to(message, f"Нахуй иди")
-        msg = bot.send_message(message.chat.id, f"@{message.from_user.username} не боится отправлять команды админов, поэтому его удаление с вероятностью 10% произойдет через час. Приятного дня! Удачной русской рулетки!")
+        msgtxt = "@{} не боится отправлять команды админов, "\
+                 "поэтому его удаление с вероятностью 10% произойдет через час. "\
+                 "Приятного дня! Удачной русской рулетки!"\
+                 .format(message.from_user.username)
+        msg = bot.send_message(message.chat.id, msgtxt)
         if (hasattr(message, "scheduled")) is False:
             queued_message_for_delete(message)
             queued_message_for_delete(msg)
@@ -357,8 +391,17 @@ def cmd_99_rotation(message):
         print(user["last_message_date"], "\t\t", user["messages_count"], "\t", user["username"])
     user_for_delete = users[0]["username"]
     userid_for_delete = users[0]["user_id"]
-    bot.send_message(message.chat.id,
-                     f"@{user_for_delete} получил это письмо, потому что команда 👨‍🏫 биг дата 👩‍🏫 проанализровала его активности в телеграме и пометила его как невовлеченного 🙈 и малопродуктивного 🙉 шитпостера 🙊. Надя и ее команда заботы  орагнизовали партнерство с ведущими 🤑 шитпост-каналами и мы поможем (нет) найти ему хорошее место, где он будет читать еще больше, а постить еще меньше. Удаление 🚮 произойдет через 10 минут ⏱. Повторная заявка на вступление будет рассмотрена в общем порядке. Еще раз спасибо за вклад (нет). Приятного дня (нет 🤷). С уважением (нет 🤷‍♂️), команда биг дата (нет 🤷‍♀️).")
+    msgtxt = "@{} получил это письмо, потому что команда 👨‍🏫 биг дата 👩‍🏫 "\
+             "проанализровала его активности в телеграме и пометила его как невовлеченного 🙈 "\
+             "и малопродуктивного 🙉 шитпостера 🙊. Надя и ее команда заботы организовали "\
+             "партнерство с ведущими 🤑 шитпост-каналами и мы поможем (нет) найти ему хорошее место, "\
+             "где он будет читать еще больше, а постить еще меньше. "\
+             "Удаление 🚮 произойдет через 10 минут ⏱. "\
+             "Повторная заявка на вступление будет рассмотрена в общем порядке. "\
+             "Еще раз спасибо за вклад (нет). Приятного дня (нет 🤷). "\
+             "С уважением (нет 🤷‍♂️), команда биг дата (нет 🤷‍♀️)."\
+             .format(user_for_delete)
+    bot.send_message(message.chat.id, msgtxt)
     Thread(target=wait_and_exit_user, kwargs={'chat_id': message.chat.id,
                                               'user_id': userid_for_delete,
                                               'username': user_for_delete}).start()

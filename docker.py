@@ -16,19 +16,27 @@ def cmdw(cmd):
 def launch():
     """Prepare and launch the bot."""
     cmdw(f"docker build --no-cache . -t {image}")
-    print(f"[NB!] Launching the {image} bot!")
-    cmdw(f"docker run --rm --name {container} {image}")
+    cmdw(f"docker run --rm -d --name {container} {image}")
+    # this is pretty bad, but also does the job
+    print("[NB!] Bot is running!")
+    print("[NB!] Logs are below..")
+    cmdw(f"docker logs --follow {container}")
 
 
 def handler(signum, frame):
     """Custom SIGINT handler."""
-    res = input("\n\nDo you want to stop hosting? [Y/n]: ").lower()
+    res = input("\n\n[ ? ] Do you want to stop hosting? [Y/n]: ").lower()
     if res == 'y':
-        cmdw("docker rmi {image}")
-        print("[NB!] Environment cleaned.")
+        print("\n[NB!] Cleaning the environment..")
+        cmdw(f"docker stop {container}")
+        # need a short window to actually kill the container
+        time.sleep(1)
+        cmdw(f"docker rmi {image}")
+        print("[NB!] Done!\n")
         sys.exit(1)
     else:
         print("\n[NB!] Keeping the bot running..")
+        cmdw(f"docker logs --follow {container}")
 
 
 def cmdw(cmd):

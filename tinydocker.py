@@ -48,7 +48,7 @@ def launch():
 
 def handler(signum, frame):
     """Custom SIGINT handler."""
-    res = input("\n\n[ ? ] Do you want to stop hosting? [Y/n]: ").lower()
+    res = input("\n\n[ ? ] Stop bot hosting? [Y/n]: ").lower()
     if res == 'y':
         print("\n[NB!] Cleaning the environment..")
         cmdd(f"docker stop {container}")

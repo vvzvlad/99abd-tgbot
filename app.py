@@ -84,23 +84,12 @@ class Abd(Model):
         database = db
 
 
-Abd.create_table()
-
-
 class Creds(Model):
     creds_name = CharField(primary_key=True)
     creds_value = CharField()
 
     class Meta:
         database = db
-
-
-Creds.create_table()
-#Creds.create(creds_name='tg_bot_token', creds_value="ХХХ")
-#Creds.create(creds_name='tg_bot_id', creds_value="5944502638")
-token = Creds.select().where(Creds.creds_name == "tg_bot_token").dicts().execute()[0]["creds_value"]
-bot_id = Creds.select().where(Creds.creds_name == "tg_bot_id").dicts().execute()[0]["creds_value"]
-bot = telebot.TeleBot(token)
 
 
 class Query(Model):
@@ -112,6 +101,14 @@ class Query(Model):
         database = db
 
 
+# create tables, setup credentials
+Abd.create_table()
+Creds.create_table()
+#Creds.create(creds_name='tg_bot_token', creds_value="ХХХ")
+#Creds.create(creds_name='tg_bot_id', creds_value="5944502638")
+token = Creds.select().where(Creds.creds_name == "tg_bot_token").dicts().execute()[0]["creds_value"]
+bot_id = Creds.select().where(Creds.creds_name == "tg_bot_id").dicts().execute()[0]["creds_value"]
+bot = telebot.TeleBot(token)
 Query.create_table()
 
 
@@ -207,7 +204,7 @@ def set_delete_delay_cmd(message):
         queued_message_for_delete(msg)
 
 
-def cmd_day_template(tag, users):
+def cmd_day_template(message, tag):
     # link tag to its epoch addition
     tags = {
         "dg": {
@@ -260,6 +257,7 @@ def cmd_day_template(tag, users):
     date_string = datetime.datetime.today().strftime('%d/%m/%Y')
     epoch_date = int(time.mktime(datetime.datetime.strptime(date_string, "%d/%m/%Y").timetuple()))
     random.seed(epoch_date + tags[tag]["num"])
+    users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
     user = random.choice(users)["username"]
     msgtxt = "{} Сегодня {} {} дня (и вечера) (/{}) - @{}"\
              .format(tags[tag]["emoji_1"],
@@ -267,94 +265,51 @@ def cmd_day_template(tag, users):
                      tags[tag]["emoji_2"],
                      tag,
                      user)
-    # an exceptional case for couple
+    # an exceptional case for the "couple"
     if tag == "dc":
         user2 = random.choice(users)["username"]
         msgtxt += f" и @{user2} 💕 🐕 ЕБИТЕС 🐕"
-    return msgtxt
+    msg = bot.send_message(message.chat.id, msgtxt)
+    if (hasattr(message, "scheduled")) is False:
+        queued_message_for_delete(message)
+        queued_message_for_delete(msg)
+    random.seed()
+    return
 
 
 @bot.message_handler(commands=["dg", "dg@ninety_nine_abominable_bot"])
 def cmd_day_gay(message):
-    msgtxt = cmd_day_template("dg")
-    msg = bot.send_message(message.chat.id, msgtxt)
-    if (hasattr(message, "scheduled")) is False:
-        queued_message_for_delete(message)
-        queued_message_for_delete(msg)
-    random.seed()
-    return
+    cmd_day_template(message, "dg")
 
 
 @bot.message_handler(commands=["df", "df@ninety_nine_abominable_bot"])
 def cmd_day_faggot(message):
-    users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
-    msgtxt = cmd_day_template("df", users)
-    msg = bot.send_message(message.chat.id, msgtxt)
-    if (hasattr(message, "scheduled")) is False:
-        queued_message_for_delete(message)
-        queued_message_for_delete(msg)
-    random.seed()
-    return
+    cmd_day_template(message, "df")
 
 
 @bot.message_handler(commands=["dfur", "dfur@ninety_nine_abominable_bot"])
 def cmd_day_furr(message):
-    msgtxt = cmd_day_template("dfur", users)
-    msg = bot.send_message(message.chat.id, msgtxt)
-    if (hasattr(message, "scheduled")) is False:
-        queued_message_for_delete(message)
-        queued_message_for_delete(msg)
-    random.seed()
-    return
+    cmd_day_template(message, "dfur")
 
 
 @bot.message_handler(commands=["dc", "dc@ninety_nine_abominable_bot"])
 def cmd_day_couple(message):
-    users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
-    msgtxt = cmd_day_template("dc", users)
-    msg = bot.send_message(message.chat.id, msgtxt)
-    if (hasattr(message, "scheduled")) is False:
-        queued_message_for_delete(message)
-        queued_message_for_delete(msg)
-    random.seed()
-    return
+    cmd_day_template(message, "dc")
 
 
 @bot.message_handler(commands=["dp", "dp@ninety_nine_abominable_bot"])
 def cmd_day_pretty(message):
-    users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
-    msgtxt = cmd_day_template("dp", users)
-    msg = bot.send_message(message.chat.id, msgtxt)
-    if (hasattr(message, "scheduled")) is False:
-        queued_message_for_delete(message)
-        queued_message_for_delete(msg)
-    random.seed()
-    return
+    cmd_day_template(message, "dp")
 
 
 @bot.message_handler(commands=["dproto", "dproto@ninety_nine_abominable_bot"])
 def cmd_day_protogen(message):
-    users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
-
-    msgtxt = cmd_day_template("dproto", users)
-    msg = bot.send_message(message.chat.id, msgtxt)
-    if (hasattr(message, "scheduled")) is False:
-        queued_message_for_delete(message)
-        queued_message_for_delete(msg)
-    random.seed()
-    return
+    cmd_day_template(message, "dproto")
 
 
 @bot.message_handler(commands=["de", "de@ninety_nine_abominable_bot"])
 def cmd_day_eblan(message):
-    users = Abd.select().where(Abd.last_message_date > datetime.datetime.today() + datetime.timedelta(weeks=-4)).order_by(Abd.username).dicts().execute()
-    msgtxt = cmd_day_template("de", users)
-    msg = bot.send_message(message.chat.id, msgtxt)
-    if (hasattr(message, "scheduled")) is False:
-        queued_message_for_delete(message)
-        queued_message_for_delete(msg)
-    random.seed()
-    return
+    cmd_day_template(message, "de")
 
 
 @bot.message_handler(commands=["help", "help@ninety_nine_abominable_bot"])
@@ -583,6 +538,7 @@ def all_messages(message):
     random_message(message)
 
 
+# launch
 Thread(target=messages_deleter).start()
 Thread(target=schedule_worker).start()
 print("Bot started")

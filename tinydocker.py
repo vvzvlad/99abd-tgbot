@@ -40,7 +40,7 @@ def launch():
     cmdd(f"docker build --no-cache -f {dockerfile} . -t {image}")
     os.remove(dockerfile)
     cmdd(f"docker run --rm -d --name {container} {image}")
-    print("[NB!] Bot is running!")
+    print("\n[NB!] Bot is running!")
     print("[NB!] Logs are below..")
     # start monitoring logs
     cmdd(f"docker logs --follow {container}")
@@ -48,8 +48,8 @@ def launch():
 
 def handler(signum, frame):
     """Custom SIGINT handler."""
-    res = input("\n\n[ ? ] Stop bot hosting? [Y/n]: ").lower()
-    if res == 'y':
+    res = input("\n\n[ ? ] Stop bot hosting? [y/n]: ").lower()
+    if res == "y":
         print("\n[NB!] Cleaning the environment..")
         cmdd(f"docker stop {container}")
         # need a short time window to actually remove the container
@@ -57,9 +57,13 @@ def handler(signum, frame):
         cmdd(f"docker rmi {image}")
         print("[NB!] Done!\n")
         sys.exit(1)
-    else:
+    elif res == "n":
         print("\n[NB!] Keeping the bot running..")
         # keep monitoring logs
+        cmdd(f"docker logs --follow {container}")
+    else:
+        # assume that the bot should be kept running
+        print("\n[NB!] Invalid option selected, keeping the bot up..")
         cmdd(f"docker logs --follow {container}")
 
 

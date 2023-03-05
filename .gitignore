@@ -4,3 +4,4 @@ members_raw.txt
 members.json
 model_combo.json
 **/datasets/**
+.vscode

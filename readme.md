@@ -1,13 +1,28 @@
 # TG 99 Bot
 
-## Update requirements:  
-pip freeze > requirements.txt
+## Update requirements
 
-## First install:  
+```sh
+pip freeze > requirements.txt
+```
+
+## First install
+
+```sh
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+```
 
-## Initialize and start:
+## Initialize and start
+
+```sh
 source .venv/bin/activate
 python app.py
+```
+
+## (All-In-One) Launch via Docker
+
+```sh
+python3 tinydocker.py
+```
